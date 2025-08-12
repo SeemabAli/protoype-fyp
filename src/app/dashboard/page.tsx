@@ -8,10 +8,10 @@ export default async function DashboardRedirect() {
   const session = await getServerSession(authOptions);
   if (!session) return redirect("/auth/signin");
   const role = (session.user as any).role;
-  if (role === "admin") return redirect("/dashboard/admin");
+  if (role === "admin") return redirect("/admin/dashboard");
   if (role === "coordinator") return redirect("/dashboard/coordinator");
-  if (role === "faculty") return redirect("/dashboard/faculty");
-  if (role === "student") return redirect("/dashboard/student");
+  if (role === "faculty") return redirect("/teacher/dashboard");
+  if (role === "student") return redirect("/student/dashboard");
   // fallback
   return redirect("/unauthorized");
 }

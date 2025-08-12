@@ -1,40 +1,36 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import NextAuth, { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import { JWT } from "next-auth/jwt";
-import { hardcodedUsers } from "@/lib/hardCodedUsers";
+import User from "@/models/User";
+import bcrypt from "bcrypt";
+import { connectDB } from "@/lib/mongoose";
+import type { JWT } from "next-auth/jwt";
+import type { Session } from "next-auth";
 
-// Extend the built-in session types
-declare module "next-auth" {
-  interface Session {
-    user: {
-      id: string;
-      name?: string | null;
-      email?: string | null;
-      image?: string | null;
-      role?: string;
-    };
-  }
-
-  interface User {
-    id: string;
-    email?: string | null;
-    name?: string | null;
-    role?: string;
-  }
-}
-
-declare module "next-auth/jwt" {
-  interface JWT {
-    role?: string;
-  }
-}
-
-// Define the credentials type
-interface Credentials {
+interface UserDocument {
+  _id: unknown;
   email: string;
   password: string;
+  role: string;
+}
+
+interface CustomUser {
+  id: string;
+  email: string;
+  role: string;
+}
+
+interface CustomJWT extends JWT {
+  role?: string;
+}
+
+interface CustomSession extends Session {
+  user: {
+    id?: string;
+    email?: string | null;
+    name?: string | null;
+    image?: string | null;
+    role?: string;
+  };
 }
 
 export const authOptions: NextAuthOptions = {
@@ -42,72 +38,56 @@ export const authOptions: NextAuthOptions = {
     CredentialsProvider({
       name: "Credentials",
       credentials: {
-        email: { label: "Email", type: "email" },
-        password: { label: "Password", type: "password" }
+        email: { label: "Email", type: "text" },
+        password: { label: "Password", type: "password" },
       },
-      async authorize(credentials): Promise<any> {
-        // Validate input
+      async authorize(credentials): Promise<CustomUser | null> {
         if (!credentials?.email || !credentials?.password) {
           return null;
         }
 
         try {
-          // Find user in hardcoded users
-          const user = hardcodedUsers.find(
-            (u) => u.email.toLowerCase() === credentials.email.toLowerCase() && 
-                   u.password === credentials.password
-          );
+          await connectDB();
+          const user = await User.findOne({ email: credentials.email }) as UserDocument | null;
+          
+          if (!user) return null;
 
-          if (user) {
-            return {
-              id: user.email,
-              email: user.email,
-              name: "name" in user ? (user as any).name : user.email,
-              role: user.role || "user", // Default role
-            };
-          }
+          const isMatch = await bcrypt.compare(credentials.password, user.password);
+          if (!isMatch) return null;
 
-          return null;
+          return { 
+            id: (user._id as string).toString(), 
+            email: user.email, 
+            role: user.role 
+          };
         } catch (error) {
-          console.error("Authorization error:", error);
+          console.error("Auth error:", error);
           return null;
         }
-      }
-    })
+      },
+    }),
   ],
   callbacks: {
-    async jwt({ token, user }): Promise<JWT> {
-      // If this is the first time the user signs in, add the role to the token
+    async jwt({ token, user }): Promise<CustomJWT> {
       if (user) {
-        token.role = user.role;
+        token.role = (user as CustomUser).role;
       }
-      return token;
+      return token as CustomJWT;
     },
-    async session({ session, token }) {
-      // Send properties to the client
-      if (token && session.user) {
-        session.user.id = token.sub as string;
-        session.user.role = token.role;
+    async session({ session, token }): Promise<CustomSession> {
+      if (token) {
+        (session as CustomSession).user.role = (token as CustomJWT).role;
       }
-      return session;
+      return session as CustomSession;
     },
-    async redirect({ url, baseUrl }) {
-      // Handle redirects based on URL
-      if (url.startsWith("/")) return `${baseUrl}${url}`;
-      if (new URL(url).origin === baseUrl) return url;
-      return baseUrl;
-    }
   },
-  pages: {
-    signIn: "/auth/signin",
-    error: "/auth/error", // Error page
+  pages: { 
+    signIn: "/auth/signin" 
   },
   session: { 
-    strategy: "jwt",
-    maxAge: 30 * 24 * 60 * 60, // 30 days
+    strategy: "jwt" as const
   },
   secret: process.env.NEXTAUTH_SECRET,
-  debug: process.env.NODE_ENV === "development",
 };
 
 const handler = NextAuth(authOptions);
