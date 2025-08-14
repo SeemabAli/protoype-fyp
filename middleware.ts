@@ -9,16 +9,16 @@ export default withAuth(
     const url = req.nextUrl.pathname;
 
     // RBAC checks
-    if (url.startsWith("/admin/dashboard") && role !== "admin") {
+    if (url.startsWith("/admin") && role !== "admin") {
       return NextResponse.redirect(new URL("/unauthorized", req.url));
     }
-    if (url.startsWith("/coordinator/dashboard") && role !== "coordinator") {
+    if (url.startsWith("/coordinator") && role !== "coordinator") {
       return NextResponse.redirect(new URL("/unauthorized", req.url));
     }
-    if (url.startsWith("/faculty/dashboard") && role !== "faculty") {
+    if (url.startsWith("/faculty") && role !== "faculty") {
       return NextResponse.redirect(new URL("/unauthorized", req.url));
     }
-    if (url.startsWith("/student/dashboard") && role !== "student") {
+    if (url.startsWith("/student") && role !== "student") {
       return NextResponse.redirect(new URL("/unauthorized", req.url));
     }
 
@@ -27,23 +27,15 @@ export default withAuth(
   {
     callbacks: {
       authorized: ({ token, req }) => {
-        // Check if user has a token (is authenticated)
         if (!token) return false;
 
         const role = token.role as string | undefined;
         const url = req.nextUrl.pathname;
 
-        // Allow access based on role and path
-        if (url.startsWith("/dashboard/admin") && role === "admin") return true;
-        if (url.startsWith("/dashboard/coordinator") && role === "coordinator")
-          return true;
-        if (url.startsWith("/dashboard/faculty") && role === "faculty")
-          return true;
-        if (url.startsWith("/dashboard/student") && role === "student")
-          return true;
-
-        // For other dashboard paths, check if user has any valid role
-        if (url.startsWith("/dashboard") && role) return true;
+        if (url.startsWith("/admin") && role === "admin") return true;
+        if (url.startsWith("/coordinator") && role === "coordinator") return true;
+        if (url.startsWith("/faculty") && role === "faculty") return true;
+        if (url.startsWith("/student") && role === "student") return true;
 
         return false;
       },
@@ -56,10 +48,9 @@ export default withAuth(
 
 export const config = {
   matcher: [
-    "/dashboard/admin/:path*",
-    "/dashboard/coordinator/:path*",
-    "/dashboard/faculty/:path*",
-    "/dashboard/student/:path*",
-    "/dashboard/:path*", // Catch any other dashboard routes
+    "/admin/:path*",
+    "/coordinator/:path*",
+    "/faculty/:path*",
+    "/student/:path*",
   ],
 };

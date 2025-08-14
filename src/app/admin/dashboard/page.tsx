@@ -48,7 +48,7 @@ export default function AdminDashboard() {
 
           {/* Card 2 - Offered Courses */}
           <div className="bg-white rounded-xl shadow-md p-6 text-center hover:-translate-y-1 transition-transform">
-            <Link href="/admin/courses">
+            <Link href="/admin/offered-courses">
               <button className="w-full py-2 bg-[#d89860] text-white rounded-lg hover:bg-[#c08850]">
                 Input Offered Courses Record
               </button>

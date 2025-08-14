@@ -10,3 +10,25 @@ export const signInSchema = z.object({
   email: z.string().email('Invalid email format'),
   password: z.string().min(6, 'Password must be at least 6 characters')
 });
+
+export const courseSchema = z.object({
+  code: z.string().min(2, "Course code is required"),
+  title: z.string().min(3, "Course title is required"),
+  enrollment: z.number().min(1, "Enrollment must be at least 1"),
+  multimediaRequired: z.boolean(),
+});
+
+export const classroomSchema = z.object({
+  classroomId: z.string().min(2, "Classroom ID is required"),
+  building: z.string().min(2, "Building is required"),
+  capacity: z
+    .number({ message: "Capacity must be a number" })
+    .min(1, "Capacity must be at least 1"),
+  multimedia: z.boolean(),
+});
+
+export const preferenceSchema = z.object({
+  facultyId: z.string().min(2, "Faculty ID is required"),
+  courseCode: z.string().min(2, "Course code is required"),
+  timePreferences: z.array(z.string()).min(1, "Select at least one time slot"),
+});

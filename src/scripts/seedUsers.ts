@@ -18,7 +18,7 @@ const users = [
     email: "admin@gmail.com",
     password: "Admin@123",
     role: "admin",
-    designation: "Administrator"
+    designation: "Administrator",
   },
   {
     name: "Coordinator User",
@@ -26,15 +26,15 @@ const users = [
     email: "coordinator@gmail.com",
     password: "Coordinator@123",
     role: "coordinator",
-    designation: "Coordinator"
+    designation: "Coordinator",
   },
   {
-    name: "Teacher User",
-    username: "teacher",
-    email: "teacher@gmail.com",
-    password: "Teacher@123",
+    name: "Faculty User",
+    username: "faculty",
+    email: "faculty@gmail.com",
+    password: "faculty@123",
     role: "faculty",
-    designation: "Lecturer"
+    designation: "Lecturer",
   },
   {
     name: "Student User",
@@ -42,8 +42,8 @@ const users = [
     email: "student@gmail.com",
     password: "Student@123",
     role: "student",
-    designation: "Student"
-  }
+    designation: "Student",
+  },
 ];
 
 async function run() {
@@ -65,7 +65,7 @@ async function run() {
       await mongoose.connection.collection("users").insertOne({
         ...u,
         password: hashed,
-        createdAt: new Date()
+        createdAt: new Date(),
       });
 
       console.log(`✅ Created ${u.email}`);

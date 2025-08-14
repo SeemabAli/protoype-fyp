@@ -26,7 +26,7 @@ export default function SignInPage() {
   // Clear general error when user starts typing
   useEffect(() => {
     if (errors.general && (email || password)) {
-      setErrors(prev => ({ ...prev, general: undefined }));
+      setErrors((prev) => ({ ...prev, general: undefined }));
     }
   }, [email, password, errors.general]);
 
@@ -53,7 +53,7 @@ export default function SignInPage() {
     setEmail(value);
     if (touched.email) {
       const emailError = validateEmail(value);
-      setErrors(prev => ({ ...prev, email: emailError }));
+      setErrors((prev) => ({ ...prev, email: emailError }));
     }
   };
 
@@ -61,20 +61,20 @@ export default function SignInPage() {
     setPassword(value);
     if (touched.password) {
       const passwordError = validatePassword(value);
-      setErrors(prev => ({ ...prev, password: passwordError }));
+      setErrors((prev) => ({ ...prev, password: passwordError }));
     }
   };
 
   // Handle input blur for validation
-  const handleBlur = (field: 'email' | 'password') => {
-    setTouched(prev => ({ ...prev, [field]: true }));
-    
-    if (field === 'email') {
+  const handleBlur = (field: "email" | "password") => {
+    setTouched((prev) => ({ ...prev, [field]: true }));
+
+    if (field === "email") {
       const emailError = validateEmail(email);
-      setErrors(prev => ({ ...prev, email: emailError }));
+      setErrors((prev) => ({ ...prev, email: emailError }));
     } else {
       const passwordError = validatePassword(password);
-      setErrors(prev => ({ ...prev, password: passwordError }));
+      setErrors((prev) => ({ ...prev, password: passwordError }));
     }
   };
 
@@ -82,11 +82,14 @@ export default function SignInPage() {
   const fillCredentials = (role: string) => {
     const credentials = {
       admin: { email: "admin@gmail.com", password: "Admin@123" },
-      coordinator: { email: "coordinator@gmail.com", password: "Coordinator@123" },
-      teacher: { email: "teacher@gmail.com", password: "Teacher@123" },
-      student: { email: "student@gmail.com", password: "Student@123" }
+      coordinator: {
+        email: "coordinator@gmail.com",
+        password: "Coordinator@123",
+      },
+      faculty: { email: "faculty@gmail.com", password: "faculty@123" },
+      student: { email: "student@gmail.com", password: "Student@123" },
     };
-    
+
     const cred = credentials[role as keyof typeof credentials];
     if (cred) {
       setEmail(cred.email);
@@ -98,15 +101,15 @@ export default function SignInPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Validate all fields
     const emailError = validateEmail(email);
     const passwordError = validatePassword(password);
-    
+
     if (emailError || passwordError) {
       setErrors({
         email: emailError,
-        password: passwordError
+        password: passwordError,
       });
       setTouched({ email: true, password: true });
       return;
@@ -114,7 +117,7 @@ export default function SignInPage() {
 
     setLoading(true);
     setErrors({});
-    
+
     try {
       const res = await signIn("credentials", {
         redirect: false,
@@ -127,11 +130,12 @@ export default function SignInPage() {
         const routes = {
           "admin@gmail.com": "/admin/dashboard",
           "coordinator@gmail.com": "/coordinator/dashboard",
-          "teacher@gmail.com": "/faculty/dashboard",
-          "student@gmail.com": "/student/dashboard"
+          "faculty@gmail.com": "/faculty/dashboard",
+          "student@gmail.com": "/student/dashboard",
         };
-        
-        const redirectUrl = routes[email as keyof typeof routes] || callbackUrl || "/dashboard";
+
+        const redirectUrl =
+          routes[email as keyof typeof routes] || callbackUrl || "/dashboard";
         router.push(redirectUrl);
         router.refresh();
       } else {
@@ -228,11 +232,11 @@ export default function SignInPage() {
                   type="email"
                   value={email}
                   onChange={(e) => handleEmailChange(e.target.value)}
-                  onBlur={() => handleBlur('email')}
+                  onBlur={() => handleBlur("email")}
                   className={`w-full pl-10 pr-3 py-3 border rounded-lg focus:outline-none focus:ring-2 transition-all ${
-                    errors.email 
-                      ? 'border-red-300 focus:ring-red-200' 
-                      : 'border-gray-300 focus:ring-blue-200'
+                    errors.email
+                      ? "border-red-300 focus:ring-red-200"
+                      : "border-gray-300 focus:ring-blue-200"
                   }`}
                   style={{
                     borderRadius: "8px",
@@ -268,11 +272,11 @@ export default function SignInPage() {
                   type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => handlePasswordChange(e.target.value)}
-                  onBlur={() => handleBlur('password')}
+                  onBlur={() => handleBlur("password")}
                   className={`w-full pl-10 pr-12 py-3 border rounded-lg focus:outline-none focus:ring-2 transition-all ${
-                    errors.password 
-                      ? 'border-red-300 focus:ring-red-200' 
-                      : 'border-gray-300 focus:ring-blue-200'
+                    errors.password
+                      ? "border-red-300 focus:ring-red-200"
+                      : "border-gray-300 focus:ring-blue-200"
                   }`}
                   style={{
                     borderRadius: "8px",
@@ -312,11 +316,13 @@ export default function SignInPage() {
               }}
               onMouseEnter={(e) => {
                 if (!loading)
-                  (e.target as HTMLButtonElement).style.backgroundColor = "#c08850";
+                  (e.target as HTMLButtonElement).style.backgroundColor =
+                    "#c08850";
               }}
               onMouseLeave={(e) => {
                 if (!loading)
-                  (e.target as HTMLButtonElement).style.backgroundColor = "#d89860";
+                  (e.target as HTMLButtonElement).style.backgroundColor =
+                    "#d89860";
               }}
             >
               {loading ? (
@@ -343,10 +349,30 @@ export default function SignInPage() {
             </p>
             <div className="grid grid-cols-1 gap-2 text-xs">
               {[
-                { role: "Admin", email: "admin@gmail.com", password: "Admin@123", key: "admin" },
-                { role: "Coordinator", email: "coordinator@gmail.com", password: "Coordinator@123", key: "coordinator" },
-                { role: "Faculty", email: "teacher@gmail.com", password: "Teacher@123", key: "teacher" },
-                { role: "Student", email: "student@gmail.com", password: "Student@123", key: "student" }
+                {
+                  role: "Admin",
+                  email: "admin@gmail.com",
+                  password: "Admin@123",
+                  key: "admin",
+                },
+                {
+                  role: "Coordinator",
+                  email: "coordinator@gmail.com",
+                  password: "Coordinator@123",
+                  key: "coordinator",
+                },
+                {
+                  role: "Faculty",
+                  email: "faculty@gmail.com",
+                  password: "faculty@123",
+                  key: "faculty",
+                },
+                {
+                  role: "Student",
+                  email: "student@gmail.com",
+                  password: "Student@123",
+                  key: "student",
+                },
               ].map((cred) => (
                 <button
                   key={cred.key}
