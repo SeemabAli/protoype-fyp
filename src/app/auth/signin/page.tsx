@@ -24,7 +24,7 @@ export default function SignInPage() {
       if (email === "admin@gmail.com") router.push("/admin/dashboard");
       else if (email === "coordinator@gmail.com")
         router.push("/coordinator/dashboard");
-      else if (email === "teacher@gmail.com") router.push("/teacher/dashboard");
+      else if (email === "teacher@gmail.com") router.push("/faculty/dashboard");
       else if (email === "student@gmail.com") router.push("/student/dashboard");
     } else {
       alert("Invalid credentials");

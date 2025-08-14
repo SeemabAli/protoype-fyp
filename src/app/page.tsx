@@ -19,7 +19,7 @@ export default function Home() {
           router.push("/coordinator/dashboard");
           break;
         case "faculty":
-          router.push("/teacher/dashboard");
+          router.push("/faculty/dashboard");
           break;
         case "student":
           router.push("/student/dashboard");

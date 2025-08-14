@@ -15,7 +15,7 @@ export default withAuth(
     if (url.startsWith("/coordinator/dashboard") && role !== "coordinator") {
       return NextResponse.redirect(new URL("/unauthorized", req.url));
     }
-    if (url.startsWith("/teacher/dashboard") && role !== "faculty") {
+    if (url.startsWith("/faculty/dashboard") && role !== "faculty") {
       return NextResponse.redirect(new URL("/unauthorized", req.url));
     }
     if (url.startsWith("/student/dashboard") && role !== "student") {
@@ -37,7 +37,7 @@ export default withAuth(
         if (url.startsWith("/dashboard/admin") && role === "admin") return true;
         if (url.startsWith("/dashboard/coordinator") && role === "coordinator")
           return true;
-        if (url.startsWith("/dashboard/teacher") && role === "faculty")
+        if (url.startsWith("/dashboard/faculty") && role === "faculty")
           return true;
         if (url.startsWith("/dashboard/student") && role === "student")
           return true;
@@ -58,7 +58,7 @@ export const config = {
   matcher: [
     "/dashboard/admin/:path*",
     "/dashboard/coordinator/:path*",
-    "/dashboard/teacher/:path*",
+    "/dashboard/faculty/:path*",
     "/dashboard/student/:path*",
     "/dashboard/:path*", // Catch any other dashboard routes
   ],

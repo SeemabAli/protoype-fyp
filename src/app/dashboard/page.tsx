@@ -10,7 +10,7 @@ export default async function DashboardRedirect() {
   const role = (session.user as any).role;
   if (role === "admin") return redirect("/admin/dashboard");
   if (role === "coordinator") return redirect("/dashboard/coordinator");
-  if (role === "faculty") return redirect("/teacher/dashboard");
+  if (role === "faculty") return redirect("/faculty/dashboard");
   if (role === "student") return redirect("/student/dashboard");
   // fallback
   return redirect("/unauthorized");
