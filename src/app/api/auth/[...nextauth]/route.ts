@@ -33,7 +33,7 @@ interface CustomSession extends Session {
   };
 }
 
-export const authOptions: NextAuthOptions = {
+const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
       name: "Credentials",
