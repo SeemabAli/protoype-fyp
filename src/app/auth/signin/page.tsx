@@ -4,7 +4,7 @@ import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState, useEffect } from "react";
 import Image from "next/image";
-import { Eye, EyeOff, Mail, Lock, AlertCircle } from "lucide-react";
+import { Eye, EyeOff, Mail, Lock, AlertCircle, LogIn } from "lucide-react";
 
 interface FormErrors {
   email?: string;
@@ -149,257 +149,200 @@ export default function SignInPage() {
   };
 
   return (
-    <div
-      className="min-h-screen flex items-center justify-center px-4 py-8"
-      style={{
-        background: "linear-gradient(135deg, #ffffff 0%, #f5f5f5 100%)",
-        fontFamily: "'Poppins', sans-serif",
-      }}
-    >
-      <div className="w-full max-w-md">
-        {/* Header Logo Section */}
+    <div className="min-h-screen bg-gradient-to-br from-white via-gray-50 to-gray-100 flex items-center justify-center p-4">
+      {/* Background decoration */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-[#d89860] opacity-5 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-[#493737] opacity-5 rounded-full blur-3xl"></div>
+      </div>
+
+      <div className="relative w-full max-w-md mx-auto">
+        {/* Header Section */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center gap-3 mb-4">
-            <div
-              className="w-16 h-16 bg-white rounded-full flex items-center justify-center overflow-hidden"
-              style={{ boxShadow: "0 4px 20px rgba(0,0,0,0.1)" }}
-            >
+          <div className="inline-flex flex-col items-center gap-4 mb-6">
+            <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center shadow-lg ring-4 ring-white/20 overflow-hidden">
               <Image
                 src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/VU_Logo.png/960px-VU_Logo.png"
                 alt="VU Logo"
-                width={48}
-                height={48}
+                width={60}
+                height={60}
                 className="w-3/4 h-auto object-contain"
-                style={{ objectFit: "contain" }}
                 priority
               />
             </div>
             <div>
-              <h1
-                className="text-xl font-semibold leading-tight"
-                style={{ color: "#493737" }}
-              >
+              <h1 className="text-2xl font-bold text-[#493737] mb-2">
                 Automated Timetable System
               </h1>
+              <div className="w-20 h-1 bg-[#d89860] rounded-full mx-auto"></div>
             </div>
           </div>
         </div>
 
-        {/* Sign In Form */}
-        <div
-          className="bg-white p-8 rounded-xl border-l-4"
-          style={{
-            borderLeftColor: "#d89860",
-            boxShadow: "0 8px 32px rgba(0, 0, 0, 0.05)",
-          }}
-        >
-          <div className="mb-6">
-            <h2
-              className="text-2xl font-semibold mb-2"
-              style={{ color: "#493737" }}
-            >
-              Welcome Back
-            </h2>
-            <p className="text-gray-600 text-sm">
-              Sign in to access your dashboard
-            </p>
+        {/* Main Card */}
+        <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-2xl border border-white/20 overflow-hidden">
+          
+          {/* Form Header */}
+          <div className="bg-gradient-to-r from-[#493737] to-[#5a4444] text-white px-8 py-8 text-center">
+            <LogIn className="w-8 h-8 mx-auto mb-3 text-[#d89860]" />
+            <h2 className="text-2xl font-bold mb-2">Welcome Back</h2>
+            <p className="text-white/80">Sign in to access your dashboard</p>
           </div>
 
-          {/* General Error Message */}
-          {errors.general && (
-            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2">
-              <AlertCircle className="h-4 w-4 text-red-500 flex-shrink-0" />
-              <span className="text-red-700 text-sm">{errors.general}</span>
-            </div>
-          )}
-
-          <form onSubmit={handleSubmit} noValidate>
-            {/* Email Field */}
-            <div className="mb-4">
-              <label
-                htmlFor="email"
-                className="block text-sm font-medium mb-2"
-                style={{ color: "#493737" }}
-              >
-                Email Address
-              </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Mail className="h-4 w-4 text-gray-400" />
+          {/* Form Content */}
+          <div className="px-8 py-8">
+            {/* General Error Message */}
+            {errors.general && (
+              <div className="mb-6 p-4 bg-red-50 border-l-4 border-red-400 rounded-r-lg">
+                <div className="flex items-center">
+                  <AlertCircle className="h-5 w-5 text-red-500 mr-3" />
+                  <span className="text-red-700 text-sm font-medium">{errors.general}</span>
                 </div>
-                <input
-                  id="email"
-                  type="email"
-                  value={email}
-                  onChange={(e) => handleEmailChange(e.target.value)}
-                  onBlur={() => handleBlur("email")}
-                  className={`w-full pl-10 pr-3 py-3 border rounded-lg focus:outline-none focus:ring-2 transition-all ${
-                    errors.email
-                      ? "border-red-300 focus:ring-red-200"
-                      : "border-gray-300 focus:ring-blue-200"
-                  }`}
-                  style={{
-                    borderRadius: "8px",
-                  }}
-                  placeholder="Enter your email"
-                  autoComplete="email"
-                  required
-                />
               </div>
-              {errors.email && (
-                <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
-                  <AlertCircle className="h-3 w-3" />
-                  {errors.email}
-                </p>
-              )}
-            </div>
+            )}
 
-            {/* Password Field */}
-            <div className="mb-6">
-              <label
-                htmlFor="password"
-                className="block text-sm font-medium mb-2"
-                style={{ color: "#493737" }}
-              >
-                Password
-              </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Lock className="h-4 w-4 text-gray-400" />
-                </div>
-                <input
-                  id="password"
-                  type={showPassword ? "text" : "password"}
-                  value={password}
-                  onChange={(e) => handlePasswordChange(e.target.value)}
-                  onBlur={() => handleBlur("password")}
-                  className={`w-full pl-10 pr-12 py-3 border rounded-lg focus:outline-none focus:ring-2 transition-all ${
-                    errors.password
-                      ? "border-red-300 focus:ring-red-200"
-                      : "border-gray-300 focus:ring-blue-200"
-                  }`}
-                  style={{
-                    borderRadius: "8px",
-                  }}
-                  placeholder="Enter your password"
-                  autoComplete="current-password"
-                  required
-                />
-                <button
-                  type="button"
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                  onClick={() => setShowPassword(!showPassword)}
-                  tabIndex={-1}
+            <form onSubmit={handleSubmit} className="space-y-6">
+              {/* Email Field */}
+              <div>
+                <label
+                  htmlFor="email"
+                  className="block text-sm font-semibold mb-3 text-[#493737]"
                 >
-                  {showPassword ? (
-                    <EyeOff className="h-4 w-4 text-gray-400 hover:text-gray-600" />
-                  ) : (
-                    <Eye className="h-4 w-4 text-gray-400 hover:text-gray-600" />
-                  )}
-                </button>
-              </div>
-              {errors.password && (
-                <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
-                  <AlertCircle className="h-3 w-3" />
-                  {errors.password}
-                </p>
-              )}
-            </div>
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full py-3 text-white font-medium rounded-lg shadow transition-all transform hover:scale-105 disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none focus:outline-none focus:ring-2 focus:ring-offset-2"
-              style={{
-                backgroundColor: "#d89860",
-                borderRadius: "8px",
-              }}
-              onMouseEnter={(e) => {
-                if (!loading)
-                  (e.target as HTMLButtonElement).style.backgroundColor =
-                    "#c08850";
-              }}
-              onMouseLeave={(e) => {
-                if (!loading)
-                  (e.target as HTMLButtonElement).style.backgroundColor =
-                    "#d89860";
-              }}
-            >
-              {loading ? (
-                <div className="flex items-center justify-center gap-2">
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                  Signing in...
+                  Email Address
+                </label>
+                <div className="relative group">
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                    <Mail className={`h-5 w-5 transition-colors ${
+                      errors.email ? 'text-red-400' : 'text-gray-400 group-focus-within:text-[#d89860]'
+                    }`} />
+                  </div>
+                  <input
+                    id="email"
+                    type="email"
+                    value={email}
+                    onChange={(e) => handleEmailChange(e.target.value)}
+                    onBlur={() => handleBlur("email")}
+                    className={`w-full pl-12 pr-4 py-4 bg-gray-50 border-2 rounded-xl focus:outline-none transition-all duration-200 ${
+                      errors.email
+                        ? "border-red-300 focus:border-red-500 focus:bg-red-50"
+                        : "border-gray-200 focus:border-[#d89860] focus:bg-white hover:border-gray-300"
+                    }`}
+                    placeholder="Enter your email"
+                    autoComplete="email"
+                    required
+                  />
                 </div>
-              ) : (
-                "Sign In"
-              )}
-            </button>
-          </form>
+                {errors.email && (
+                  <div className="mt-2 flex items-center text-red-600 text-sm">
+                    <AlertCircle className="h-4 w-4 mr-2" />
+                    {errors.email}
+                  </div>
+                )}
+              </div>
+
+              {/* Password Field */}
+              <div>
+                <label
+                  htmlFor="password"
+                  className="block text-sm font-semibold mb-3 text-[#493737]"
+                >
+                  Password
+                </label>
+                <div className="relative group">
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                    <Lock className={`h-5 w-5 transition-colors ${
+                      errors.password ? 'text-red-400' : 'text-gray-400 group-focus-within:text-[#d89860]'
+                    }`} />
+                  </div>
+                  <input
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    value={password}
+                    onChange={(e) => handlePasswordChange(e.target.value)}
+                    onBlur={() => handleBlur("password")}
+                    className={`w-full pl-12 pr-12 py-4 bg-gray-50 border-2 rounded-xl focus:outline-none transition-all duration-200 ${
+                      errors.password
+                        ? "border-red-300 focus:border-red-500 focus:bg-red-50"
+                        : "border-gray-200 focus:border-[#d89860] focus:bg-white hover:border-gray-300"
+                    }`}
+                    placeholder="Enter your password"
+                    autoComplete="current-password"
+                    required
+                  />
+                  <button
+                    type="button"
+                    className="absolute inset-y-0 right-0 pr-4 flex items-center"
+                    onClick={() => setShowPassword(!showPassword)}
+                  >
+                    {showPassword ? (
+                      <EyeOff className="h-5 w-5 text-gray-400 hover:text-[#d89860] transition-colors" />
+                    ) : (
+                      <Eye className="h-5 w-5 text-gray-400 hover:text-[#d89860] transition-colors" />
+                    )}
+                  </button>
+                </div>
+                {errors.password && (
+                  <div className="mt-2 flex items-center text-red-600 text-sm">
+                    <AlertCircle className="h-4 w-4 mr-2" />
+                    {errors.password}
+                  </div>
+                )}
+              </div>
+
+              {/* Submit Button */}
+              <button
+                type="submit"
+                disabled={loading}
+                className="group relative w-full bg-gradient-to-r from-[#d89860] to-[#e0a670] hover:from-[#c88850] hover:to-[#d89860] text-white py-4 rounded-xl font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none focus:outline-none focus:ring-4 focus:ring-[#d89860]/20"
+              >
+                {loading ? (
+                  <div className="flex items-center justify-center">
+                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-3"></div>
+                    Signing in...
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-center">
+                    <LogIn className="w-5 h-5 mr-3 transition-transform group-hover:scale-110" />
+                    Sign In
+                  </div>
+                )}
+              </button>
+            </form>
+            
+          </div>
 
           {/* Demo Credentials */}
-          <div
-            className="mt-6 p-4 rounded-lg"
-            style={{ backgroundColor: "#f8f9fa", border: "1px solid #e9ecef" }}
-          >
-            <p
-              className="font-semibold text-xs mb-3"
-              style={{ color: "#493737" }}
-            >
-              🔐 Demo Login Credentials:
-            </p>
-            <div className="grid grid-cols-1 gap-2 text-xs">
+          <div className="bg-gray-50/50 px-8 py-6 border-t border-gray-100">
+            <div className="text-center mb-4">
+              <h3 className="font-semibold text-[#493737] text-sm mb-2">🔐 Demo Credentials</h3>
+              <p className="text-xs text-gray-600">Click any role to auto-fill the form</p>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-3">
               {[
-                {
-                  role: "Admin",
-                  email: "admin@gmail.com",
-                  password: "Admin@123",
-                  key: "admin",
-                },
-                {
-                  role: "Coordinator",
-                  email: "coordinator@gmail.com",
-                  password: "Coordinator@123",
-                  key: "coordinator",
-                },
-                {
-                  role: "Faculty",
-                  email: "faculty@gmail.com",
-                  password: "faculty@123",
-                  key: "faculty",
-                },
-                {
-                  role: "Student",
-                  email: "student@gmail.com",
-                  password: "Student@123",
-                  key: "student",
-                },
+                { role: "Admin", email: "admin@gmail.com", key: "admin", color: "bg-red-50 border-red-200 hover:bg-red-100" },
+                { role: "Coordinator", email: "coordinator@gmail.com", key: "coordinator", color: "bg-blue-50 border-blue-200 hover:bg-blue-100" },
+                { role: "Faculty", email: "faculty@gmail.com", key: "faculty", color: "bg-green-50 border-green-200 hover:bg-green-100" },
+                { role: "Student", email: "student@gmail.com", key: "student", color: "bg-purple-50 border-purple-200 hover:bg-purple-100" },
               ].map((cred) => (
                 <button
                   key={cred.key}
                   type="button"
                   onClick={() => fillCredentials(cred.key)}
-                  className="flex justify-between items-center p-2 bg-white rounded border-l-2 hover:bg-gray-50 transition-colors cursor-pointer text-left"
-                  style={{ borderLeftColor: "#d89860" }}
+                  className={`p-3 rounded-lg border-2 transition-all duration-200 text-left ${cred.color}`}
                 >
-                  <span className="font-medium" style={{ color: "#493737" }}>
-                    {cred.role}:
-                  </span>
-                  <span className="text-gray-600">
-                    {cred.email} / {cred.password}
-                  </span>
+                  <div className="font-semibold text-sm text-[#493737]">{cred.role}</div>
+                  <div className="text-xs text-gray-600 truncate">{cred.email}</div>
                 </button>
               ))}
             </div>
-            <p className="text-xs text-gray-500 mt-2 text-center">
-              Click on any credential to auto-fill the form
-            </p>
           </div>
         </div>
 
         {/* Footer */}
-        <div className="text-center mt-6">
+        <div className="text-center mt-8">
           <p className="text-sm text-gray-500">
-            © 2024 Automated Timetable System. All rights reserved.
+            © 2024 Virtual University of Pakistan. All rights reserved.
           </p>
         </div>
       </div>
