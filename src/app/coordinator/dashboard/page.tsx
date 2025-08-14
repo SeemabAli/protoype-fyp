@@ -1,20 +1,14 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-// app/dashboard/coordinator/page.tsx
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
-import { getServerSession } from "next-auth";
-import { redirect } from "next/navigation";
+"use client";
 
-export default async function CoordinatorPage(){
-  const session = await getServerSession(authOptions);
-  if (!session) return redirect("/auth/signin");
-  const role = (session.user as any).role;
-  if (role !== "coordinator") return redirect("/unauthorized");
+import ProtectedRoute from "@/components/ProtectedRoute";
 
+export default function CoordinatorDashboard() {
   return (
-    <div>
-      <h1 className="text-2xl font-bold">Coordinator Dashboard</h1>
-      <p className="mt-4">Welcome, {session.user?.email}</p>
-      <div className="mt-6">Placeholders: Courses, rooms, preferences</div>
-    </div>
+    <ProtectedRoute allowedRoles={["coordinator"]}>
+      <div className="p-6">
+        <h1 className="text-2xl font-bold mb-4">Coordinator Dashboard</h1>
+        <p>Welcome! You can manage rooms, courses, and schedules here.</p>
+      </div>
+    </ProtectedRoute>
   );
 }

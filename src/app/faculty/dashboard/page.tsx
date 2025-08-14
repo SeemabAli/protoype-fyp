@@ -1,20 +1,18 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-// app/dashboard/faculty/page.tsx
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
-import { getServerSession } from "next-auth";
-import { redirect } from "next/navigation";
+"use client";
 
-export default async function FacultyPage() {
-  const session = await getServerSession(authOptions);
-  if (!session) return redirect("/auth/signin");
-  const role = (session.user as any).role;
-  if (role !== "faculty") return redirect("/unauthorized");
+import LogoutButton from "@/components/LogoutButton";
+import ProtectedRoute from "@/components/ProtectedRoute";
 
+export default function AdminDashboard() {
   return (
-    <div>
-      <h1 className="text-2xl font-bold">Faculty Dashboard</h1>
-      <p className="mt-4">Welcome, {session.user?.email}</p>
-      <div className="mt-6">Placeholders: Preferences, assigned timetable</div>
-    </div>
+    <ProtectedRoute allowedRoles={["admin"]}>
+      <div className="p-6">
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-2xl font-bold">Admin Dashboard</h1>
+          <LogoutButton />
+        </div>
+        <p>Welcome, Admin! Manage your application here.</p>
+      </div>
+    </ProtectedRoute>
   );
 }
