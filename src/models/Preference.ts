@@ -10,7 +10,7 @@ const PreferenceSchema: Schema = new Schema(
   {
     facultyId: { type: String, required: true },
     courseCode: { type: String, required: true },
-    timePreferences: { type: [String], required: true },
+    timeSlot: { type: mongoose.Schema.Types.ObjectId, ref: "Timeslot", required: true }
   },
   { timestamps: true }
 );

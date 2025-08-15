@@ -4,9 +4,9 @@
 import { useEffect, useState } from "react";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import FacultyTable from "@/components/FacultyTable";
-import FacultyModal from "./FacultyModal";
 import DeleteModal from "./DeleteModal";
 import LogoutButton from "@/components/LogoutButton";
+import FacultyModal from "./FacultyModal";
 
 export default function AdminFacultyPage() {
   const [faculties, setFaculties] = useState<any[]>([]);

@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "seed": "tsx src/scripts/seedUsers.ts"
+    "seed": "tsx src/scripts/seedUsers.ts",
+    "seedSlots": "tsx src/scripts/seedTimeslots.ts"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.15",
@@ -42,7 +43,8 @@
     "eslint": "^9",
     "eslint-config-next": "15.4.6",
     "tailwindcss": "^4.1.11",
-    "tsx": "^4.20.3",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.20.4",
     "tw-animate-css": "^1.3.6",
     "typescript": "^5"
   }

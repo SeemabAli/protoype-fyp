@@ -6,7 +6,7 @@ export const metadata: Metadata = {
   title: "Automated Timetable System",
   description: "FYP Prototype",
   icons: {
-    icon: "/favicon.png", // will automatically resolve from public/
+    icon: "/faviconVU.png", // will automatically resolve from public/
   },
 };
 

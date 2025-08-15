@@ -26,9 +26,3 @@ export const classroomSchema = z.object({
     .min(1, "Capacity must be at least 1"),
   multimedia: z.boolean(),
 });
-
-export const preferenceSchema = z.object({
-  facultyId: z.string().min(2, "Faculty ID is required"),
-  courseCode: z.string().min(2, "Course code is required"),
-  timePreferences: z.array(z.string()).min(1, "Select at least one time slot"),
-});
