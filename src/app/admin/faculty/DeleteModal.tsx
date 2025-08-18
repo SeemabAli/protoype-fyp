@@ -2,8 +2,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import toast from "react-hot-toast";
+import { X } from "lucide-react";
 
 interface Props {
   open: boolean;
@@ -26,35 +26,50 @@ export default function DeleteModal({ open, setOpen, selected, refresh }: Props)
       if (!res.ok) throw new Error("Failed to delete");
 
       toast.success("Faculty deleted successfully");
-      refresh(); // ✅ Refresh list after delete
-      setOpen(false); // ✅ Close modal after delete
+      refresh();
+      setOpen(false);
     } catch (error) {
       toast.error("Error deleting faculty");
     }
   };
 
+  if (!open) return null;
+
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Delete Faculty</DialogTitle>
-        </DialogHeader>
-        <p>Are you sure you want to delete <b>{selected?.name}</b>?</p>
-        <DialogFooter>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+      <div className="bg-white rounded-2xl shadow-2xl border border-white/20 w-full max-w-md overflow-visible">
+        {/* Header */}
+        <div className="bg-gradient-to-r from-[#493737] to-[#5a4444] text-white rounded-t-2xl px-6 py-4 flex items-center justify-between">
+          <h2 className="text-lg font-semibold">Delete Faculty</h2>
           <button
             onClick={() => setOpen(false)}
-            className="bg-gray-300 px-4 py-2 rounded"
+            className="p-1 hover:bg-white/20 rounded-full transition"
+          >
+            <X className="w-5 h-5 text-white" />
+          </button>
+        </div>
+
+        {/* Body */}
+        <div className="px-6 py-6 text-gray-700 text-sm">
+          Are you sure you want to delete <b>{selected?.name}</b>?
+        </div>
+
+        {/* Footer */}
+        <div className="px-6 py-4 flex justify-end gap-2">
+          <button
+            onClick={() => setOpen(false)}
+            className="px-4 py-2 text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50 transition"
           >
             Cancel
           </button>
           <button
-            onClick={handleDelete} // ✅ no parameter, uses selected._id
-            className="bg-red-600 text-white px-4 py-2 rounded"
+            onClick={handleDelete}
+            className="bg-red-600 text-white px-4 py-2 rounded-md hover:shadow-lg transition"
           >
             Delete
           </button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+        </div>
+      </div>
+    </div>
   );
 }

@@ -43,6 +43,7 @@ const users = [
     password: "Student@123",
     role: "student",
     designation: "Student",
+    batch: "2023",
   },
 ];
 

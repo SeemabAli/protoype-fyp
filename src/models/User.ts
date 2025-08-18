@@ -1,10 +1,11 @@
 import mongoose, { Schema, Document, Model, Types } from "mongoose";
 
 export interface IUser extends Document {
-  _id: Types.ObjectId;   // ✅ Fix typing here
+  _id: Types.ObjectId;
   email: string;
   password: string;
   role: "admin" | "coordinator" | "faculty" | "student";
+  batch?: string; // Optional: only for students
 }
 
 const UserSchema: Schema<IUser> = new Schema(
@@ -16,6 +17,7 @@ const UserSchema: Schema<IUser> = new Schema(
       enum: ["admin", "coordinator", "faculty", "student"],
       required: true,
     },
+    batch: { type: String }, // Optional
   },
   { timestamps: true }
 );

@@ -1,12 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useState, useEffect } from "react";
-import toast from "react-hot-toast";
 import { z } from "zod";
+import { Loader2, X } from "lucide-react";
 
 const studentSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -55,7 +55,7 @@ export default function StudentModal({ open, setOpen, selected, refresh }: Props
         body: JSON.stringify(form),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.message);
+      if (!res.ok) throw new Error(data.message || "Failed to save");
 
       toast.success(`Student ${selected ? "updated" : "created"} successfully`);
       refresh();
@@ -67,35 +67,73 @@ export default function StudentModal({ open, setOpen, selected, refresh }: Props
     }
   };
 
-  return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>{selected ? "Edit Student" : "Add Student"}</DialogTitle>
-        </DialogHeader>
+  if (!open) return null;
 
-        <div className="space-y-4 py-4">
-          <div>
-            <Label>Name</Label>
-            <Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} disabled={loading} />
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+      <div className="bg-white rounded-2xl shadow-2xl border border-white/20 w-full max-w-md overflow-visible">
+        {/* Header */}
+        <div className="bg-gradient-to-r from-[#493737] to-[#5a4444] text-white rounded-t-2xl px-6 py-4 flex items-center justify-between">
+          <h2 className="text-lg font-semibold">{selected ? "Edit Student" : "Add Student"}</h2>
+          <button
+            onClick={() => setOpen(false)}
+            className="p-1 hover:bg-white/20 rounded-full transition"
+          >
+            <X className="w-5 h-5 text-white" />
+          </button>
+        </div>
+
+        {/* Body */}
+        <div className="px-6 py-6 space-y-4">
+          <div className="space-y-1">
+            <Label>Name *</Label>
+            <Input
+              value={form.name}
+              onChange={(e) => setForm({ ...form, name: e.target.value })}
+              disabled={loading}
+              className="border-gray-300 focus:border-[#d89860] focus:ring-[#d89860]/50"
+            />
           </div>
-          <div>
-            <Label>Email</Label>
-            <Input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} disabled={loading} />
+          <div className="space-y-1">
+            <Label>Email *</Label>
+            <Input
+              type="email"
+              value={form.email}
+              onChange={(e) => setForm({ ...form, email: e.target.value })}
+              disabled={loading}
+              className="border-gray-300 focus:border-[#d89860] focus:ring-[#d89860]/50"
+            />
           </div>
-          <div>
-            <Label>Registration Number</Label>
-            <Input value={form.registrationNumber} onChange={(e) => setForm({ ...form, registrationNumber: e.target.value })} disabled={loading} />
+          <div className="space-y-1">
+            <Label>Registration Number *</Label>
+            <Input
+              value={form.registrationNumber}
+              onChange={(e) => setForm({ ...form, registrationNumber: e.target.value })}
+              disabled={loading}
+              className="border-gray-300 focus:border-[#d89860] focus:ring-[#d89860]/50"
+            />
           </div>
         </div>
 
-        <DialogFooter>
-          <button onClick={() => setOpen(false)} className="px-4 py-2 border rounded">Cancel</button>
-          <button onClick={handleSave} disabled={loading} className="px-4 py-2 bg-green-600 text-white rounded">
+        {/* Footer */}
+        <div className="px-6 py-4 flex justify-end gap-2">
+          <button
+            onClick={() => setOpen(false)}
+            disabled={loading}
+            className="px-4 py-2 text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50 transition disabled:opacity-50"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleSave}
+            disabled={loading || !form.name || !form.email || !form.registrationNumber}
+            className="bg-gradient-to-r from-[#d89860] to-[#e0a670] text-white px-4 py-2 rounded-md hover:shadow-lg flex items-center gap-2 transition disabled:opacity-50"
+          >
+            {loading && <Loader2 className="w-4 h-4 animate-spin" />}
             {loading ? "Saving..." : "Save"}
           </button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+        </div>
+      </div>
+    </div>
   );
 }

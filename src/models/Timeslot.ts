@@ -1,7 +1,7 @@
 import mongoose, { Schema, Document, Model } from "mongoose";
 
 export interface ITimeslot extends Document {
-  day: string;     // e.g., "Mon"
+  day: string;     // e.g., "Monday"
   start: string;   // "08:00"
   end: string;     // "09:30"
   slotIndex: number;

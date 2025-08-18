@@ -1,199 +1,209 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useEffect, useState } from "react";
+import { useSession } from "next-auth/react";
 import ProtectedRoute from "@/components/ProtectedRoute";
-import PreferencesModal from "./PreferenceModal";
-import { Loader2 } from "lucide-react";
+import LogoutButton from "@/components/LogoutButton";
+import PreferenceModal from "./PreferenceModal";
 import toast from "react-hot-toast";
 
-interface FacultyData {
-  id: string;
-  name: string;
-  email: string;
-  preferences?: any[];
-}
-
 export default function FacultyPreferencesPage() {
-  const [facultyData, setFacultyData] = useState<FacultyData | null>(null);
-  const [coursesAvailable, setCoursesAvailable] = useState(false);
+  const { data: session } = useSession();
+  const [courses, setCourses] = useState<any[]>([]);
+  const [preferences, setPreferences] = useState<any>(null);
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
 
-  // Fetch all required data
-  useEffect(() => {
-    const fetchRequiredData = async () => {
-      try {
-        setLoading(true);
-        setError("");
-
-        // Fetch faculty data
-        const facultyRes = await fetch("/api/faculty");
-        if (!facultyRes.ok) {
-          throw new Error("Failed to fetch faculty information");
-        }
-        const facultyData = await facultyRes.json();
-        setFacultyData(facultyData);
-
-        // Pre-check if courses are available
-        const coursesRes = await fetch("/api/offered-courses");
-        if (!coursesRes.ok) {
-          throw new Error("Failed to check available courses");
-        }
-        const coursesData = await coursesRes.json();
-        setCoursesAvailable(Array.isArray(coursesData) && coursesData.length > 0);
-
-        if (coursesData.length === 0) {
-          setError("No courses available for preference selection");
-        }
-
-      } catch (error: any) {
-        console.error("Error fetching required data:", error);
-        setError(error.message || "Failed to load required data");
-        toast.error(error.message || "Failed to load required data");
-      } finally {
-        setLoading(false);
+  const fetchCourses = async () => {
+    try {
+      const res = await fetch("/api/courses", { cache: "no-store" });
+      const data = await res.json();
+      if (res.ok) {
+        setCourses(data);
+      } else {
+        toast.error("Failed to fetch courses");
       }
-    };
-
-    fetchRequiredData();
-  }, []);
-
-  const handleSetPreferences = () => {
-    if (!facultyData?.id) {
-      toast.error("Faculty information not loaded");
-      return;
+    } catch (error) {
+      console.error("Error fetching courses:", error);
+      toast.error("Failed to fetch courses");
     }
-    if (!coursesAvailable) {
-      toast.error("No courses available for selection");
-      return;
+  };
+
+  const fetchPreferences = async () => {
+    if (!session?.user?.id) return;
+    
+    try {
+      const res = await fetch(`/api/preferences/faculty/${session.user.id}`, { cache: "no-store" });
+      if (res.ok) {
+        const data = await res.json();
+        setPreferences(data);
+      } else {
+        // No preferences found yet - this is okay for new faculty
+        setPreferences(null);
+      }
+    } catch (error) {
+      console.error("Error fetching preferences:", error);
+    } finally {
+      setLoading(false);
     }
-    setOpen(true);
   };
 
-  const isButtonDisabled = loading || !facultyData?.id || !coursesAvailable || !!error;
+  useEffect(() => {
+    fetchCourses();
+    fetchPreferences();
+  }, [session?.user?.id]);
 
-  const getButtonText = () => {
-    if (loading) return "Loading...";
-    if (error) return "Unable to Load";
-    if (!facultyData?.id) return "Loading Faculty Data...";
-    if (!coursesAvailable) return "No Courses Available";
-    return "Set Preferences";
+  const getSelectedCourses = () => {
+    if (!preferences?.courses) return [];
+    return courses.filter(course => 
+      preferences.courses.some((prefCourse: any) => 
+        prefCourse._id === course._id || prefCourse === course._id
+      )
+    );
   };
 
-  const getButtonTooltip = () => {
-    if (loading) return "Loading required data...";
-    if (error) return error;
-    if (!facultyData?.id) return "Waiting for faculty information...";
-    if (!coursesAvailable) return "No courses are currently available for preference selection";
-    return "Click to set your course preferences";
-  };
+  const selectedCourses = getSelectedCourses();
 
   return (
     <ProtectedRoute allowedRoles={["faculty"]}>
-      <div className="p-6">
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Course Preferences</h1>
-          {facultyData && (
-            <p className="text-gray-600">
-              Welcome, {facultyData.name}! Select your preferred courses and time slots.
-            </p>
-          )}
+      <div className="min-h-screen p-6 bg-gray-50">
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-2xl font-bold">Faculty • Course Preferences</h1>
+          <LogoutButton />
         </div>
 
-        {/* Loading State */}
-        {loading && (
-          <div className="flex items-center gap-3 mb-4 p-4 bg-blue-50 rounded-lg">
-            <Loader2 className="w-5 h-5 animate-spin text-blue-600" />
-            <div>
-              <p className="font-medium text-blue-800">Loading...</p>
-              <p className="text-sm text-blue-600">Fetching faculty data and available courses...</p>
-            </div>
-          </div>
-        )}
-
-        {/* Error State */}
-        {error && !loading && (
-          <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
-            <p className="font-medium text-red-800">Error</p>
-            <p className="text-sm text-red-600">{error}</p>
-          </div>
-        )}
-
-        {/* Success State Info */}
-        {!loading && facultyData && coursesAvailable && !error && (
-          <div className="mb-4 p-4 bg-green-50 border border-green-200 rounded-lg">
-            <p className="font-medium text-green-800">Ready to set preferences</p>
-            <p className="text-sm text-green-600">
-              Faculty data loaded successfully. Courses are available for selection.
-            </p>
-          </div>
-        )}
-
-        {/* Warning State */}
-        {!loading && facultyData && !coursesAvailable && !error && (
-          <div className="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-            <p className="font-medium text-yellow-800">No Courses Available</p>
-            <p className="text-sm text-yellow-600">
-              There are currently no courses available for preference selection. Please contact the administrator.
-            </p>
-          </div>
-        )}
-
-        {/* Set Preferences Button */}
-        <div className="relative group">
-          <button
-            type="button"
-            onClick={handleSetPreferences}
-            disabled={isButtonDisabled}
-            className={`px-6 py-3 rounded-lg font-medium transition-all duration-200 flex items-center gap-2 ${
-              isButtonDisabled
-                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                : "bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white cursor-pointer shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
-            }`}
-            title={getButtonTooltip()}
-          >
-            {loading && <Loader2 className="w-4 h-4 animate-spin" />}
-            {getButtonText()}
-          </button>
-          
-          {/* Tooltip on hover */}
-          {isButtonDisabled && (
-            <div className="absolute bottom-full left-0 mb-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-gray-800 text-white text-sm px-3 py-2 rounded-lg whitespace-nowrap z-10">
-              {getButtonTooltip()}
-              <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-800"></div>
-            </div>
-          )}
+        {/* Instructions */}
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+          <h2 className="text-lg font-medium text-blue-800 mb-2">Instructions</h2>
+          <ul className="text-sm text-blue-700 space-y-1">
+            <li>• You must select at least <strong>5 course preferences</strong></li>
+            <li>• You can be assigned a minimum of 2 and maximum of 3 courses</li>
+            <li>• Higher designation faculty get priority in course assignment</li>
+            <li>• Earlier submissions get priority if designations are equal</li>
+          </ul>
         </div>
 
-        {/* Current Preferences Display */}
-        {facultyData?.preferences && facultyData.preferences.length > 0 && (
-          <div className="mt-6">
-            <h2 className="text-lg font-semibold mb-3">Current Preferences</h2>
-            <div className="bg-gray-50 p-4 rounded-lg">
-              <p className="text-sm text-gray-600">
-                You have {facultyData.preferences.length} preference(s) saved.
-              </p>
-            </div>
+        {loading ? (
+          <div className="text-center py-8">
+            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+            <p className="mt-2 text-gray-600">Loading preferences...</p>
           </div>
+        ) : (
+          <>
+            {/* Current Preferences Status */}
+            <div className="bg-white rounded-xl shadow p-6 mb-6">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-xl font-semibold">Your Current Preferences</h2>
+                <button
+                  onClick={() => setOpen(true)}
+                  className={`px-4 py-2 rounded transition-colors ${
+                    selectedCourses.length >= 5 
+                      ? 'bg-yellow-600 text-white hover:bg-yellow-700' 
+                      : 'bg-blue-600 text-white hover:bg-blue-700'
+                  }`}
+                >
+                  {preferences ? 'Update Preferences' : 'Set Preferences'}
+                </button>
+              </div>
+
+              <div className="flex items-center gap-4 mb-4">
+                <div className={`px-3 py-1 rounded-full text-sm font-medium ${
+                  selectedCourses.length >= 5 
+                    ? 'bg-green-100 text-green-800' 
+                    : 'bg-red-100 text-red-800'
+                }`}>
+                  {selectedCourses.length}/5 minimum courses selected
+                </div>
+                {preferences?.submittedAt && (
+                  <div className="text-sm text-gray-600">
+                    Last updated: {new Date(preferences.submittedAt).toLocaleDateString()}
+                  </div>
+                )}
+              </div>
+
+              {selectedCourses.length === 0 ? (
+                <div className="text-center py-8 text-gray-500">
+                  <p>No preferences set yet.</p>
+                  <p className="text-sm mt-1">Click &quot;Set Preferences&quot; to get started.</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {selectedCourses.map((course, index) => (
+                    <div key={course._id} className="border rounded-lg p-4 bg-gray-50">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2">
+                            <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs font-medium">
+                              #{index + 1}
+                            </span>
+                            <span className="font-medium text-blue-600">{course.code}</span>
+                          </div>
+                          <h3 className="font-medium mt-1">{course.name}</h3>
+                          <p className="text-sm text-gray-600">{course.department}</p>
+                          <div className="flex items-center gap-3 mt-2">
+                            <span className="text-xs text-gray-500">
+                              {course.creditHours} credit hours
+                            </span>
+                            <span className="text-xs text-gray-500">
+                              {course.enrollment} students
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* All Available Courses */}
+            <div className="bg-white rounded-xl shadow p-6">
+              <h2 className="text-xl font-semibold mb-4">All Available Courses</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {courses.map((course) => {
+                  const isSelected = selectedCourses.some(sc => sc._id === course._id);
+                  return (
+                    <div key={course._id} className={`border rounded-lg p-4 ${
+                      isSelected ? 'bg-blue-50 border-blue-200' : 'bg-white'
+                    }`}>
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="font-medium text-blue-600">{course.code}</span>
+                        {isSelected && (
+                          <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs font-medium">
+                            Selected
+                          </span>
+                        )}
+                      </div>
+                      <h3 className="font-medium mb-1">{course.name}</h3>
+                      <p className="text-sm text-gray-600 mb-2">{course.department}</p>
+                      <div className="flex items-center justify-between text-xs text-gray-500">
+                        <span>{course.creditHours} credit hours</span>
+                        <span>{course.enrollment} students</span>
+                      </div>
+                      {course.multimediaRequired && (
+                        <span className="inline-block mt-2 bg-orange-100 text-orange-800 px-2 py-1 rounded text-xs">
+                          Multimedia Required
+                        </span>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </>
         )}
-        
-        {/* Modal */}
-        {facultyData?.id && (
-          <PreferencesModal
-            open={open}
-            setOpen={setOpen}
-            facultyId={facultyData.id}
-            refresh={() => {
-              // Refresh faculty data to show updated preferences
-              fetch("/api/me")
-                .then((res) => res.json())
-                .then((data) => setFacultyData(data))
-                .catch((error) => console.error("Error refreshing faculty data:", error));
-            }}
-          />
-        )}
+
+        {/* Preference Modal */}
+        <PreferenceModal
+          open={open}
+          setOpen={setOpen}
+          courses={courses}
+          currentPreferences={preferences}
+          refresh={fetchPreferences}
+          facultyId={session?.user?.id}
+        />
       </div>
     </ProtectedRoute>
   );

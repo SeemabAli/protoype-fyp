@@ -4,9 +4,9 @@
 import { useEffect, useState } from "react";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import LogoutButton from "@/components/LogoutButton";
-import toast from "react-hot-toast";
 import ClassroomModal from "./ClassroomModal";
 import DeleteModal from "./DeleteModal";
+import toast from "react-hot-toast";
 
 export default function ClassroomsPage() {
   const [classrooms, setClassrooms] = useState<any[]>([]);

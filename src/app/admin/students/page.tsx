@@ -38,7 +38,7 @@ export default function AdminStudentsPage() {
           <span>Total: {students.length}</span>
           <button
             onClick={() => { setSelected(null); setOpen(true); }}
-            className="px-4 py-2 rounded bg-green-600 text-white"
+            className="px-4 py-2 rounded bg-green-600 text-white hover:shadow-lg transition"
           >
             + Add Student
           </button>
@@ -64,8 +64,18 @@ export default function AdminStudentsPage() {
                     <td className="p-2">{s.email}</td>
                     <td className="p-2">{s.registrationNumber}</td>
                     <td className="p-2 text-right space-x-2">
-                      <button onClick={() => { setSelected(s); setOpen(true); }} className="px-2 py-1 bg-blue-500 text-white rounded">Edit</button>
-                      <button onClick={() => { setSelected(s); setDeleteOpen(true); }} className="px-2 py-1 bg-red-600 text-white rounded">Delete</button>
+                      <button
+                        onClick={() => { setSelected(s); setOpen(true); }}
+                        className="px-2 py-1 bg-blue-500 text-white rounded hover:shadow-md transition"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => { setSelected(s); setDeleteOpen(true); }}
+                        className="px-2 py-1 bg-red-600 text-white rounded hover:shadow-md transition"
+                      >
+                        Delete
+                      </button>
                     </td>
                   </tr>
                 ))
