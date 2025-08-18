@@ -1,11 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+// src/app/admin/faculty/page.tsx
 "use client";
 
 import { useEffect, useState } from "react";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import FacultyTable from "@/components/FacultyTable";
-import DeleteModal from "./DeleteModal";
 import LogoutButton from "@/components/LogoutButton";
+import DeleteModal from "./DeleteModal";
 import FacultyModal from "./FacultyModal";
 
 export default function AdminFacultyPage() {
@@ -24,43 +25,31 @@ export default function AdminFacultyPage() {
 
   return (
     <ProtectedRoute allowedRoles={["admin"]}>
-      <div className="min-h-screen p-6 bg-[linear-gradient(135deg,#ffffff_0%,#f5f5f5_100%)]">
-        <div className="p-6">
+      <div className="min-h-screen p-6 bg-gray-50">
+        {/* Header */}
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold">Admin Dashboard</h1>
+          <h1 className="text-2xl font-bold">Admin • Faculty</h1>
           <LogoutButton />
         </div>
-        <p>Welcome, Admin! Manage your application here.</p>
-      </div>
-        <div className="mx-auto max-w-6xl">
-          {/* Header */}
-          <div className="bg-white p-6 rounded-xl mb-6 border-l-4 shadow-sm" style={{ borderLeftColor: "#d89860" }}>
-            <h1 className="text-2xl font-semibold text-[#493737]">Administrator • Faculty Management</h1>
-            <p className="text-sm text-gray-600">Create, view, update, and delete faculty records</p>
-          </div>
 
-          {/* Actions */}
-          <div className="flex justify-between items-center mb-4">
-            <div className="text-sm text-gray-600">
-              Total: <span className="font-medium">{faculties.length}</span>
-            </div>
-            <button
-              onClick={() => { setSelected(null); setOpen(true); }}
-              className="px-4 py-2 rounded-lg shadow text-white"
-              style={{ backgroundColor: "#d89860" }}
-            >
-              + Add Faculty
-            </button>
-          </div>
+        {/* Actions */}
+        <div className="flex justify-between items-center mb-4">
+          <div>Total: {faculties.length}</div>
+          <button
+            onClick={() => { setSelected(null); setOpen(true); }}
+            className="px-4 py-2 rounded bg-blue-600 text-white"
+          >
+            + Add Faculty
+          </button>
+        </div>
 
-          {/* Table */}
-          <div className="bg-white rounded-xl shadow p-4">
-            <FacultyTable
-              data={faculties}
-              onEdit={(f) => { setSelected(f); setOpen(true); }}
-              onDelete={(f) => { setSelected(f); setDeleteOpen(true); }}
-            />
-          </div>
+        {/* Table */}
+        <div className="bg-white rounded-xl shadow p-4">
+          <FacultyTable
+            data={faculties}
+            onEdit={(f) => { setSelected(f); setOpen(true); }}
+            onDelete={(f) => { setSelected(f); setDeleteOpen(true); }}
+          />
         </div>
 
         {/* Modals */}

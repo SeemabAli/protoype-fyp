@@ -1,6 +1,7 @@
-import mongoose, { Schema, Document, Model } from "mongoose";
+import mongoose, { Schema, Document, Model, Types } from "mongoose";
 
 export interface IUser extends Document {
+  _id: Types.ObjectId;   // ✅ Fix typing here
   email: string;
   password: string;
   role: "admin" | "coordinator" | "faculty" | "student";

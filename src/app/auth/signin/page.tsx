@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
-import { signIn } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState, useEffect } from "react";
 import Image from "next/image";
@@ -52,29 +52,24 @@ export default function SignInPage() {
   const handleEmailChange = (value: string) => {
     setEmail(value);
     if (touched.email) {
-      const emailError = validateEmail(value);
-      setErrors((prev) => ({ ...prev, email: emailError }));
+      setErrors((prev) => ({ ...prev, email: validateEmail(value) }));
     }
   };
 
   const handlePasswordChange = (value: string) => {
     setPassword(value);
     if (touched.password) {
-      const passwordError = validatePassword(value);
-      setErrors((prev) => ({ ...prev, password: passwordError }));
+      setErrors((prev) => ({ ...prev, password: validatePassword(value) }));
     }
   };
 
   // Handle input blur for validation
   const handleBlur = (field: "email" | "password") => {
     setTouched((prev) => ({ ...prev, [field]: true }));
-
     if (field === "email") {
-      const emailError = validateEmail(email);
-      setErrors((prev) => ({ ...prev, email: emailError }));
+      setErrors((prev) => ({ ...prev, email: validateEmail(email) }));
     } else {
-      const passwordError = validatePassword(password);
-      setErrors((prev) => ({ ...prev, password: passwordError }));
+      setErrors((prev) => ({ ...prev, password: validatePassword(password) }));
     }
   };
 
@@ -82,14 +77,10 @@ export default function SignInPage() {
   const fillCredentials = (role: string) => {
     const credentials = {
       admin: { email: "admin@gmail.com", password: "Admin@123" },
-      coordinator: {
-        email: "coordinator@gmail.com",
-        password: "Coordinator@123",
-      },
+      coordinator: { email: "coordinator@gmail.com", password: "Coordinator@123" },
       faculty: { email: "faculty@gmail.com", password: "faculty@123" },
       student: { email: "student@gmail.com", password: "Student@123" },
     };
-
     const cred = credentials[role as keyof typeof credentials];
     if (cred) {
       setEmail(cred.email);
@@ -99,18 +90,14 @@ export default function SignInPage() {
     }
   };
 
+  // Submit
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Validate all fields
     const emailError = validateEmail(email);
     const passwordError = validatePassword(password);
-
     if (emailError || passwordError) {
-      setErrors({
-        email: emailError,
-        password: passwordError,
-      });
+      setErrors({ email: emailError, password: passwordError });
       setTouched({ email: true, password: true });
       return;
     }
@@ -126,16 +113,20 @@ export default function SignInPage() {
       });
 
       if (!res?.error) {
-        // Role-based routing
-        const routes = {
-          "admin@gmail.com": "/admin/dashboard",
-          "coordinator@gmail.com": "/coordinator/dashboard",
-          "faculty@gmail.com": "/faculty/dashboard",
-          "student@gmail.com": "/student/dashboard",
+        // ✅ Instead of mapping email, redirect by role
+        const sessionRes = await fetch("/api/auth/session");
+        const session = await sessionRes.json();
+
+        const roleRoutes: Record<string, string> = {
+          admin: "/admin/dashboard",
+          coordinator: "/coordinator/dashboard",
+          faculty: "/faculty/dashboard",
+          student: "/student/dashboard",
         };
 
         const redirectUrl =
-          routes[email as keyof typeof routes] || callbackUrl || "/dashboard";
+          roleRoutes[session?.user?.role] || callbackUrl || "/dashboard";
+
         router.push(redirectUrl);
         router.refresh();
       } else {

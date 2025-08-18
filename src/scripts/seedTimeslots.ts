@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 import dotenv from "dotenv";
 import Timeslot from "@/models/Timeslot";
 
-// ✅ Explicitly load `.env.local`
+// ✅ Load .env.local explicitly
 dotenv.config({ path: ".env.local" });
 
 const MONGODB_URI = process.env.MONGODB_URI;
@@ -12,11 +12,11 @@ if (!MONGODB_URI) throw new Error("Please add MONGODB_URI to your .env.local fil
 // Timeslot data
 const days = ["Mon", "Tue", "Wed", "Thu", "Fri"];
 const slots = [
-  { start: "08:00", end: "09:30" },
-  { start: "09:30", end: "11:00" },
-  { start: "11:00", end: "12:30" },
-  { start: "13:30", end: "15:00" },
-  { start: "15:00", end: "16:30" },
+  { startTime: "08:00", endTime: "09:30" },
+  { startTime: "09:30", endTime: "11:00" },
+  { startTime: "11:00", endTime: "12:30" },
+  { startTime: "13:30", endTime: "15:00" },
+  { startTime: "15:00", endTime: "16:30" },
 ];
 
 async function run() {
@@ -26,21 +26,22 @@ async function run() {
 
     for (const day of days) {
       for (let i = 0; i < slots.length; i++) {
-        const { start, end } = slots[i];
+        const { startTime, endTime } = slots[i];
 
+        // ensure idempotency (don’t duplicate)
         const exists = await Timeslot.findOne({ day, slotIndex: i });
         if (exists) {
-          console.log(`⚠️ Timeslot ${day} ${start}-${end} already exists — skipping`);
+          console.log(`⚠️ Timeslot ${day} ${startTime}-${endTime} already exists — skipping`);
           continue;
         }
 
         await Timeslot.create({
           day,
-          start,
-          end,
+          startTime,
+          endTime,
           slotIndex: i,
         });
-        console.log(`✅ Created Timeslot ${day} ${start}-${end}`);
+        console.log(`✅ Created Timeslot ${day} ${startTime}-${endTime}`);
       }
     }
 

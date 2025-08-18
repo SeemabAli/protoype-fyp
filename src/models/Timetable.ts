@@ -1,12 +1,27 @@
-import mongoose from "mongoose";
+import mongoose, { Schema, Document, Model, Types } from "mongoose";
 
-const timetableSchema = new mongoose.Schema({
-  course: String,
-  faculty: String,
-  classroom: String,
-  day: String,
-  timeSlot: String,
-  studentBatch: String
-}, { timestamps: true });
+export interface ITimetable extends Document {
+  course: Types.ObjectId;
+  faculty: Types.ObjectId;
+  classroom: Types.ObjectId;
+  day: string;
+  timeSlot: Types.ObjectId;
+  studentBatch: string;
+}
 
-export default mongoose.models.Timetable || mongoose.model("Timetable", timetableSchema);
+const TimetableSchema = new Schema<ITimetable>(
+  {
+    course: { type: Schema.Types.ObjectId, ref: "Course", required: true },
+    faculty: { type: Schema.Types.ObjectId, ref: "Faculty", required: true },
+    classroom: { type: Schema.Types.ObjectId, ref: "Classroom", required: true },
+    day: { type: String, required: true },
+    timeSlot: { type: Schema.Types.ObjectId, ref: "Timeslot", required: true },
+    studentBatch: { type: String, required: true },
+  },
+  { timestamps: true }
+);
+
+const Timetable: Model<ITimetable> =
+  mongoose.models.Timetable || mongoose.model<ITimetable>("Timetable", TimetableSchema);
+
+export default Timetable;

@@ -1,18 +1,21 @@
-import mongoose, { Schema, Document } from "mongoose";
+import mongoose, { Schema, Document, Types } from "mongoose";
 
 export interface IPreference extends Document {
-  facultyId: string; // ref to Faculty
-  courseCode: string; // ref to Course
-  timePreferences: string[]; // array of time slots
+  facultyId: Types.ObjectId;
+  courseId: Types.ObjectId;
+  timeSlots: Types.ObjectId[];
+  submittedAt: Date;
 }
 
-const PreferenceSchema: Schema = new Schema(
-  {
-    facultyId: { type: String, required: true },
-    courseCode: { type: String, required: true },
-    timeSlot: { type: mongoose.Schema.Types.ObjectId, ref: "Timeslot", required: true }
-  },
-  { timestamps: true }
-);
+const PreferenceSchema = new Schema<IPreference>({
+  facultyId: { type: Schema.Types.ObjectId, ref: "Faculty", required: true },
+  courseId: { type: Schema.Types.ObjectId, ref: "Course", required: true },
+  timeSlots: [{ type: Schema.Types.ObjectId, ref: "Timeslot", required: true }],
+  submittedAt: { type: Date, default: Date.now },
+});
 
-export default mongoose.models.Preference || mongoose.model<IPreference>("Preference", PreferenceSchema);
+const Preference =
+  (mongoose.models.Preference as mongoose.Model<IPreference>) ||
+  mongoose.model<IPreference>("Preference", PreferenceSchema);
+
+export default Preference;

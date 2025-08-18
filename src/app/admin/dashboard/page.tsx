@@ -41,25 +41,25 @@ export default function AdminDashboard() {
           <div className="bg-white rounded-xl shadow-md p-6 text-center hover:-translate-y-1 transition-transform">
             <Link href="/admin/faculty">
               <button className="w-full py-2 bg-[#d89860] text-white rounded-lg hover:bg-[#c08850]">
-                Create Faculty Account
+                Manage Faculty Accounts
               </button>
             </Link>
           </div>
 
-          {/* Card 2 - Offered Courses */}
+          {/* Card 2 - Students */}
           <div className="bg-white rounded-xl shadow-md p-6 text-center hover:-translate-y-1 transition-transform">
-            <Link href="/admin/offered-courses">
+            <Link href="/admin/students">
               <button className="w-full py-2 bg-[#d89860] text-white rounded-lg hover:bg-[#c08850]">
-                Input Offered Courses Record
+                Manage Student Accounts
               </button>
             </Link>
           </div>
 
-          {/* Card 3 - Classrooms */}
+          {/* Card 3 - Coordinators */}
           <div className="bg-white rounded-xl shadow-md p-6 text-center hover:-translate-y-1 transition-transform">
-            <Link href="/admin/classrooms">
+            <Link href="/admin/coordinators">
               <button className="w-full py-2 bg-[#d89860] text-white rounded-lg hover:bg-[#c08850]">
-                Input Classrooms Record
+                Manage Coordinator Accounts
               </button>
             </Link>
           </div>

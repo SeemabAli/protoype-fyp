@@ -6,9 +6,21 @@ export const facultySchema = z.object({
   department: z.string().min(2, "Department is required"),
 });
 
+export const studentSchema = z.object({
+  name: z.string().min(2, "Name is too short"),
+  email: z.string().email("Invalid email"),
+  batch: z.string().min(2, "Batch is required"),
+});
+
+export const coordinatorSchema = z.object({
+  name: z.string().min(2, "Name is too short"),
+  email: z.string().email("Invalid email"),
+  department: z.string().min(2, "Department is required"),
+});
+
 export const signInSchema = z.object({
-  email: z.string().email('Invalid email format'),
-  password: z.string().min(6, 'Password must be at least 6 characters')
+  email: z.string().email("Invalid email format"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
 });
 
 export const courseSchema = z.object({
@@ -21,8 +33,6 @@ export const courseSchema = z.object({
 export const classroomSchema = z.object({
   classroomId: z.string().min(2, "Classroom ID is required"),
   building: z.string().min(2, "Building is required"),
-  capacity: z
-    .number({ message: "Capacity must be a number" })
-    .min(1, "Capacity must be at least 1"),
+  capacity: z.number().min(1, "Capacity must be at least 1"),
   multimedia: z.boolean(),
 });

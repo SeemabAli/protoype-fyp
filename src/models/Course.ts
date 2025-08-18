@@ -1,4 +1,4 @@
-import mongoose, { Schema, Document } from "mongoose";
+import mongoose, { Schema, Document, Model } from "mongoose";
 
 export interface ICourse extends Document {
   code: string;
@@ -7,7 +7,7 @@ export interface ICourse extends Document {
   multimediaRequired: boolean;
 }
 
-const CourseSchema: Schema = new Schema(
+const CourseSchema: Schema<ICourse> = new Schema(
   {
     code: { type: String, required: true, unique: true },
     title: { type: String, required: true },
@@ -17,4 +17,7 @@ const CourseSchema: Schema = new Schema(
   { timestamps: true }
 );
 
-export default mongoose.models.Course || mongoose.model<ICourse>("Course", CourseSchema);
+const Course: Model<ICourse> =
+  mongoose.models.Course || mongoose.model<ICourse>("Course", CourseSchema);
+
+export default Course;

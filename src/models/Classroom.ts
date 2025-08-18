@@ -1,4 +1,4 @@
-import mongoose, { Schema, Document } from "mongoose";
+import mongoose, { Schema, Document, Model } from "mongoose";
 
 export interface IClassroom extends Document {
   classroomId: string;
@@ -7,7 +7,7 @@ export interface IClassroom extends Document {
   multimedia: boolean;
 }
 
-const ClassroomSchema: Schema = new Schema(
+const ClassroomSchema: Schema<IClassroom> = new Schema(
   {
     classroomId: { type: String, required: true, unique: true },
     building: { type: String, required: true },
@@ -17,4 +17,7 @@ const ClassroomSchema: Schema = new Schema(
   { timestamps: true }
 );
 
-export default mongoose.models.Classroom || mongoose.model<IClassroom>("Classroom", ClassroomSchema);
+const Classroom: Model<IClassroom> =
+  mongoose.models.Classroom || mongoose.model<IClassroom>("Classroom", ClassroomSchema);
+
+export default Classroom;
