@@ -5,8 +5,8 @@ export interface ICourse extends Document {
   title: string;
   enrollment: number;
   multimediaRequired: boolean;
-  studentBatch?: string;            // For timetable
-  preferredFacultyIds?: string[];   // Array of faculty IDs for preferences
+  studentBatch?: string;
+  preferredFacultyIds?: string[];
 }
 
 const CourseSchema: Schema<ICourse> = new Schema(
@@ -15,8 +15,8 @@ const CourseSchema: Schema<ICourse> = new Schema(
     title: { type: String, required: true },
     enrollment: { type: Number, required: true },
     multimediaRequired: { type: Boolean, required: true },
-    studentBatch: { type: String }, // Optional
-    preferredFacultyIds: [{ type: Schema.Types.ObjectId, ref: "Faculty" }], // Optional array
+    studentBatch: { type: String },
+    preferredFacultyIds: [{ type: Schema.Types.ObjectId, ref: "Faculty" }],
   },
   { timestamps: true }
 );

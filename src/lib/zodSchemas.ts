@@ -32,6 +32,7 @@ export const courseSchema = z.object({
   title: z.string().min(3, "Course title is required"),
   enrollment: z.number().min(1, "Enrollment must be at least 1"),
   multimediaRequired: z.boolean(),
+  studentBatch: z.string().optional(),
 });
 
 export const classroomSchema = z.object({
