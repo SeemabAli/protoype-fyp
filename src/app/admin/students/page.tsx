@@ -2,11 +2,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { FiLogOut, FiEdit, FiTrash2 } from "react-icons/fi";
 import ProtectedRoute from "@/components/ProtectedRoute";
-import LogoutButton from "@/components/LogoutButton";
-import StudentModal from "./StudentModal";
 import DeleteModal from "./DeleteModal";
-import toast from "react-hot-toast";
+import StudentModal from "./StudentModal";
+import { logout } from "@/lib/logout";
 
 export default function AdminStudentsPage() {
   const [students, setStudents] = useState<any[]>([]);
@@ -15,77 +15,117 @@ export default function AdminStudentsPage() {
   const [deleteOpen, setDeleteOpen] = useState(false);
 
   const fetchStudents = async () => {
-    try {
-      const res = await fetch("/api/students", { cache: "no-store" });
-      const data = await res.json();
-      setStudents(data);
-    } catch {
-      toast.error("Failed to fetch students");
-    }
+    const res = await fetch("/api/students", { cache: "no-store" });
+    const data = await res.json();
+    setStudents(data);
   };
 
-  useEffect(() => { fetchStudents(); }, []);
+  useEffect(() => {
+    fetchStudents();
+  }, []);
 
   return (
     <ProtectedRoute allowedRoles={["admin"]}>
-      <div className="min-h-screen p-6 bg-gray-50">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold">Student Management</h1>
-          <LogoutButton />
+      <div className="min-h-screen bg-gradient-to-br from-white via-gray-50 to-gray-100 p-6 relative">
+        {/* Background decorations */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-[#d89860] opacity-5 rounded-full blur-3xl"></div>
+          <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-[#493737] opacity-5 rounded-full blur-3xl"></div>
         </div>
 
-        <div className="flex justify-between items-center mb-4">
-          <span>Total: {students.length}</span>
-          <button
-            onClick={() => { setSelected(null); setOpen(true); }}
-            className="px-4 py-2 rounded bg-green-600 text-white hover:shadow-lg transition"
-          >
-            + Add Student
-          </button>
-        </div>
+        <div className="relative max-w-7xl mx-auto space-y-6">
+          {/* Header */}
+          <div className="flex justify-between items-center">
+            <h1 className="text-3xl font-bold text-[#493737]">
+              Admin • Students
+            </h1>
+            <button
+              onClick={logout}
+              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-red-600 text-white font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300"
+            >
+              <FiLogOut size={18} />
+              Logout
+            </button>
+          </div>
 
-        <div className="bg-white rounded-xl shadow p-4">
-          <table className="w-full border-collapse">
-            <thead>
-              <tr className="border-b">
-                <th className="p-2 text-left">Name</th>
-                <th className="p-2 text-left">Email</th>
-                <th className="p-2 text-left">Registration No</th>
-                <th className="p-2 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {students.length === 0 ? (
-                <tr><td colSpan={4} className="p-2 text-center">No students</td></tr>
-              ) : (
-                students.map((s) => (
-                  <tr key={s._id} className="border-b">
-                    <td className="p-2">{s.name}</td>
-                    <td className="p-2">{s.email}</td>
-                    <td className="p-2">{s.registrationNumber}</td>
-                    <td className="p-2 text-right space-x-2">
+          {/* Actions */}
+          <div className="flex justify-between items-center bg-white/80 backdrop-blur-md rounded-2xl shadow-xl border border-white/20 p-4">
+            <div className="text-[#493737] font-semibold">
+              Total Students: {students.length}
+            </div>
+            <button
+              onClick={() => {
+                setSelected(null);
+                setOpen(true);
+              }}
+              className="flex items-center gap-2 px-5 py-3 rounded-xl bg-gradient-to-r from-[#d89860] to-[#e0a670] text-white font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300"
+            >
+              + Add Student
+            </button>
+          </div>
+
+          {/* Table */}
+          <div className="bg-white/90 backdrop-blur-md rounded-2xl shadow-2xl border border-white/20 p-4 overflow-x-auto">
+            <table className="min-w-full text-left text-sm text-[#493737]">
+              <thead className="bg-[#493737] text-white rounded-t-xl">
+                <tr>
+                  <th className="px-4 py-2 rounded-tl-xl">#</th>
+                  <th className="px-4 py-2">Name</th>
+                  <th className="px-4 py-2">Email</th>
+                  <th className="px-4 py-2">Reg. No</th>
+                  <th className="px-4 py-2 rounded-tr-xl">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {students.map((s, idx) => (
+                  <tr
+                    key={s._id}
+                    className="border-b hover:bg-gray-50 transition-colors"
+                  >
+                    <td className="px-4 py-2">{idx + 1}</td>
+                    <td className="px-4 py-2">{s.name}</td>
+                    <td className="px-4 py-2">{s.email}</td>
+                    <td className="px-4 py-2">{s.registrationNumber}</td>
+                    <td className="px-4 py-2 flex gap-3">
                       <button
-                        onClick={() => { setSelected(s); setOpen(true); }}
-                        className="px-2 py-1 bg-blue-500 text-white rounded hover:shadow-md transition"
+                        onClick={() => {
+                          setSelected(s);
+                          setOpen(true);
+                        }}
+                        className="p-2 bg-[#d89860]/20 hover:bg-[#d89860]/30 rounded-lg transition"
                       >
-                        Edit
+                        <FiEdit className="text-[#d89860]" size={18} />
                       </button>
                       <button
-                        onClick={() => { setSelected(s); setDeleteOpen(true); }}
-                        className="px-2 py-1 bg-red-600 text-white rounded hover:shadow-md transition"
+                        onClick={() => {
+                          setSelected(s);
+                          setDeleteOpen(true);
+                        }}
+                        className="p-2 bg-red-100 hover:bg-red-200 rounded-lg transition"
                       >
-                        Delete
+                        <FiTrash2 className="text-red-600" size={18} />
                       </button>
                     </td>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
+                ))}
+              </tbody>
+            </table>
+          </div>
 
-        <StudentModal open={open} setOpen={setOpen} selected={selected} refresh={fetchStudents} />
-        <DeleteModal open={deleteOpen} setOpen={setDeleteOpen} selected={selected} refresh={fetchStudents} />
+          {/* Modals */}
+          <StudentModal
+            open={open}
+            setOpen={setOpen}
+            selected={selected}
+            refresh={fetchStudents}
+          />
+          <DeleteModal
+            open={deleteOpen}
+            setOpen={setDeleteOpen}
+            selected={selected}
+            refresh={fetchStudents}
+          />
+        </div>
       </div>
     </ProtectedRoute>
   );

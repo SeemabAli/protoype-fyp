@@ -7,10 +7,14 @@ export const facultySchema = z.object({
 });
 
 export const studentSchema = z.object({
-  name: z.string().min(2, "Name is too short"),
+  name: z.string().min(2, "Name is required"),
   email: z.string().email("Invalid email"),
-  batch: z.string().min(2, "Batch is required"),
+  registrationNumber: z.string().min(3, "Registration number is required"),
+  department: z.string().min(2, "Department is required"),
+  semester: z.number().min(1).max(8),
+  section: z.string().optional(),
 });
+
 
 export const coordinatorSchema = z.object({
   name: z.string().min(2, "Name is too short"),
