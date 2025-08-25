@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
@@ -12,24 +11,30 @@ interface Props {
   refresh: () => void;
 }
 
-export default function DeleteModal({ open, setOpen, selected, refresh }: Props) {
+export default function DeleteModal({
+  open,
+  setOpen,
+  selected,
+  refresh,
+}: Props) {
   const handleDelete = async () => {
     if (!selected?._id) {
       toast.error("No faculty selected");
       return;
     }
 
-    if (!confirm(`Are you sure you want to delete ${selected.name}?`)) return;
-
     try {
-      const res = await fetch(`/api/faculty/${selected._id}`, { method: "DELETE" });
-      if (!res.ok) throw new Error("Failed to delete");
+      const res = await fetch(`/api/faculty/${selected._id}`, {
+        method: "DELETE",
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to delete");
 
       toast.success("Faculty deleted successfully");
       refresh();
       setOpen(false);
-    } catch (error) {
-      toast.error("Error deleting faculty");
+    } catch (error: any) {
+      toast.error(error.message || "Error deleting faculty");
     }
   };
 

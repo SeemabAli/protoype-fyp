@@ -22,8 +22,18 @@ const DESIGNATION_OPTIONS = [
   { value: "Professor", label: "Professor" },
 ];
 
-export default function FacultyModal({ open, setOpen, selected, refresh }: Props) {
-  const [form, setForm] = useState({ name: "", email: "", department: "", designation: "Lecturer" });
+export default function FacultyModal({
+  open,
+  setOpen,
+  selected,
+  refresh,
+}: Props) {
+  const [form, setForm] = useState({
+    name: "",
+    email: "",
+    department: "",
+    designation: "Lecturer",
+  });
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -58,13 +68,22 @@ export default function FacultyModal({ open, setOpen, selected, refresh }: Props
       });
 
       const data = await res.json();
-      if (!res.ok) throw new Error(data.message || `Failed to ${selected ? "update" : "create"} faculty`);
+      if (!res.ok)
+        throw new Error(
+          data.error || `Failed to ${selected ? "update" : "create"} faculty`
+        );
 
       toast.success(`Faculty ${selected ? "updated" : "created"} successfully`);
       refresh();
       setOpen(false);
 
-      if (!selected) setForm({ name: "", email: "", department: "", designation: "Lecturer" });
+      if (!selected)
+        setForm({
+          name: "",
+          email: "",
+          department: "",
+          designation: "Lecturer",
+        });
     } catch (err: any) {
       toast.error(err.message || "Something went wrong");
     } finally {
@@ -93,8 +112,13 @@ export default function FacultyModal({ open, setOpen, selected, refresh }: Props
       <div className="bg-white rounded-2xl shadow-2xl border border-white/20 w-full max-w-md overflow-visible">
         {/* Header */}
         <div className="bg-gradient-to-r from-[#493737] to-[#5a4444] text-white rounded-t-2xl px-6 py-4 flex items-center justify-between">
-          <h2 className="text-lg font-semibold">{selected ? "Edit Faculty" : "Add New Faculty"}</h2>
-          <button onClick={handleCancel} className="p-1 hover:bg-white/20 rounded-full transition">
+          <h2 className="text-lg font-semibold">
+            {selected ? "Edit Faculty" : "Add New Faculty"}
+          </h2>
+          <button
+            onClick={handleCancel}
+            className="p-1 hover:bg-white/20 rounded-full transition"
+          >
             <X className="w-5 h-5 text-white" />
           </button>
         </div>
@@ -102,7 +126,9 @@ export default function FacultyModal({ open, setOpen, selected, refresh }: Props
         {/* Form */}
         <div className="px-6 py-6 space-y-4">
           <div className="space-y-1">
-            <Label htmlFor="name" className="text-gray-700 text-sm">Name *</Label>
+            <Label htmlFor="name" className="text-gray-700 text-sm">
+              Name *
+            </Label>
             <Input
               id="name"
               value={form.name}
@@ -114,7 +140,9 @@ export default function FacultyModal({ open, setOpen, selected, refresh }: Props
           </div>
 
           <div className="space-y-1">
-            <Label htmlFor="email" className="text-gray-700 text-sm">Email *</Label>
+            <Label htmlFor="email" className="text-gray-700 text-sm">
+              Email *
+            </Label>
             <Input
               id="email"
               type="email"
@@ -127,7 +155,9 @@ export default function FacultyModal({ open, setOpen, selected, refresh }: Props
           </div>
 
           <div className="space-y-1">
-            <Label htmlFor="department" className="text-gray-700 text-sm">Department *</Label>
+            <Label htmlFor="department" className="text-gray-700 text-sm">
+              Department *
+            </Label>
             <Input
               id="department"
               value={form.department}
@@ -139,16 +169,22 @@ export default function FacultyModal({ open, setOpen, selected, refresh }: Props
           </div>
 
           <div className="space-y-1">
-            <Label htmlFor="designation" className="text-gray-700 text-sm">Designation *</Label>
+            <Label htmlFor="designation" className="text-gray-700 text-sm">
+              Designation *
+            </Label>
             <select
               id="designation"
               value={form.designation}
-              onChange={(e) => setForm({ ...form, designation: e.target.value })}
+              onChange={(e) =>
+                setForm({ ...form, designation: e.target.value })
+              }
               disabled={loading}
               className="h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-[#d89860]/50 transition"
             >
               {DESIGNATION_OPTIONS.map((option) => (
-                <option key={option.value} value={option.value}>{option.label}</option>
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
               ))}
             </select>
           </div>
