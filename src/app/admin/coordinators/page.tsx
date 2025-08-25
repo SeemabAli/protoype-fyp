@@ -2,12 +2,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { FiLogOut, FiEdit, FiTrash2 } from "react-icons/fi";
 import ProtectedRoute from "@/components/ProtectedRoute";
-import LogoutButton from "@/components/LogoutButton";
-import CoordinatorModal from "./CoordinatorModal";
 import DeleteModal from "./DeleteModal";
+import CoordinatorModal from "./CoordinatorModal";
+import { logout } from "@/lib/logout";
 
-export default function CoordinatorsPage() {
+export default function AdminCoordinatorPage() {
   const [coordinators, setCoordinators] = useState<any[]>([]);
   const [selected, setSelected] = useState<any>(null);
   const [open, setOpen] = useState(false);
@@ -19,61 +20,112 @@ export default function CoordinatorsPage() {
     setCoordinators(data);
   };
 
-  useEffect(() => { fetchCoordinators(); }, []);
+  useEffect(() => {
+    fetchCoordinators();
+  }, []);
 
   return (
     <ProtectedRoute allowedRoles={["admin"]}>
-      <div className="min-h-screen p-6 bg-gray-50">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold">Admin • Coordinators</h1>
-          <LogoutButton />
+      <div className="min-h-screen bg-gradient-to-br from-white via-gray-50 to-gray-100 p-6 relative">
+        {/* Background decorations */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-[#d89860] opacity-5 rounded-full blur-3xl"></div>
+          <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-[#493737] opacity-5 rounded-full blur-3xl"></div>
         </div>
 
-        {/* Actions */}
-        <div className="flex justify-between items-center mb-4">
-          <div>Total: {coordinators.length}</div>
-          <button
-            onClick={() => { setSelected(null); setOpen(true); }}
-            className="px-4 py-2 rounded bg-blue-600 text-white"
-          >
-            + Add Coordinator
-          </button>
-        </div>
+        <div className="relative max-w-7xl mx-auto space-y-6">
+          {/* Header */}
+          <div className="flex justify-between items-center">
+            <h1 className="text-3xl font-bold text-[#493737]">
+              Admin • Coordinators
+            </h1>
+            <button
+              onClick={logout}
+              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-red-600 text-white font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300"
+            >
+              <FiLogOut size={18} />
+              Logout
+            </button>
+          </div>
 
-        {/* Table */}
-        <div className="bg-white rounded-xl shadow p-4">
-          {coordinators.length === 0 ? (
-            <p className="text-gray-500">No coordinators found.</p>
-          ) : (
-            <table className="w-full border-collapse">
-              <thead>
-                <tr className="bg-gray-100">
-                  <th className="p-2 text-left">Name</th>
-                  <th className="p-2 text-left">Email</th>
-                  <th className="p-2 text-left">Department</th>
-                  <th className="p-2">Actions</th>
+          {/* Actions */}
+          <div className="flex justify-between items-center bg-white/80 backdrop-blur-md rounded-2xl shadow-xl border border-white/20 p-4">
+            <div className="text-[#493737] font-semibold">
+              Total Coordinators: {coordinators.length}
+            </div>
+            <button
+              onClick={() => {
+                setSelected(null);
+                setOpen(true);
+              }}
+              className="flex items-center gap-2 px-5 py-3 rounded-xl bg-gradient-to-r from-[#d89860] to-[#e0a670] text-white font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300"
+            >
+              + Add Coordinator
+            </button>
+          </div>
+
+          {/* Table */}
+          <div className="bg-white/90 backdrop-blur-md rounded-2xl shadow-2xl border border-white/20 p-4 overflow-x-auto">
+            <table className="min-w-full text-left text-sm text-[#493737]">
+              <thead className="bg-[#493737] text-white rounded-t-xl">
+                <tr>
+                  <th className="px-4 py-2 rounded-tl-xl">#</th>
+                  <th className="px-4 py-2">Name</th>
+                  <th className="px-4 py-2">Email</th>
+                  <th className="px-4 py-2">Department</th>
+                  <th className="px-4 py-2 rounded-tr-xl">Actions</th>
                 </tr>
               </thead>
               <tbody>
-                {coordinators.map((c) => (
-                  <tr key={c._id} className="border-t">
-                    <td className="p-2">{c.name}</td>
-                    <td className="p-2">{c.email}</td>
-                    <td className="p-2">{c.department}</td>
-                    <td className="p-2 flex gap-2">
-                      <button onClick={() => { setSelected(c); setOpen(true); }} className="px-2 py-1 bg-yellow-500 text-white rounded">Edit</button>
-                      <button onClick={() => { setSelected(c); setDeleteOpen(true); }} className="px-2 py-1 bg-red-600 text-white rounded">Delete</button>
+                {coordinators.map((c, idx) => (
+                  <tr
+                    key={c._id}
+                    className="border-b hover:bg-gray-50 transition-colors"
+                  >
+                    <td className="px-4 py-2">{idx + 1}</td>
+                    <td className="px-4 py-2">{c.name}</td>
+                    <td className="px-4 py-2">{c.email}</td>
+                    <td className="px-4 py-2">{c.department}</td>
+                    <td className="px-4 py-2 flex gap-3">
+                      <button
+                        onClick={() => {
+                          setSelected(c);
+                          setOpen(true);
+                        }}
+                        className="p-2 bg-[#d89860]/20 hover:bg-[#d89860]/30 rounded-lg transition"
+                      >
+                        <FiEdit className="text-[#d89860]" size={18} />
+                      </button>
+                      <button
+                        onClick={() => {
+                          setSelected(c);
+                          setDeleteOpen(true);
+                        }}
+                        className="p-2 bg-red-100 hover:bg-red-200 rounded-lg transition"
+                      >
+                        <FiTrash2 className="text-red-600" size={18} />
+                      </button>
                     </td>
                   </tr>
                 ))}
               </tbody>
             </table>
-          )}
-        </div>
+          </div>
 
-        {/* Modals */}
-        <CoordinatorModal open={open} setOpen={setOpen} selected={selected} refresh={fetchCoordinators} />
-        <DeleteModal open={deleteOpen} setOpen={setDeleteOpen} selected={selected} refresh={fetchCoordinators} />
+          {/* Modals */}
+          <CoordinatorModal
+            open={open}
+            setOpen={setOpen}
+            selected={selected}
+            refresh={fetchCoordinators}
+          />
+          <DeleteModal
+            open={deleteOpen}
+            setOpen={setDeleteOpen}
+            selected={selected}
+            refresh={fetchCoordinators}
+          />
+        </div>
       </div>
     </ProtectedRoute>
   );
