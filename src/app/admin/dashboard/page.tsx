@@ -20,7 +20,7 @@ export default function AdminDashboard() {
           </div>
           <span className="text-lg font-semibold">Automated Timetable System</span>
         </div>
-        <button className="bg-[#d89860] hover:bg-[#c08850] px-4 py-2 rounded text-sm">
+        <button className="px-4 py-2 rounded text-sm">
           <LogoutButton />
         </button>
       </div>
