@@ -20,7 +20,7 @@ export default function CoordinatorDashboard() {
           </div>
           <span className="text-lg font-semibold">Automated Timetable System</span>
         </div>
-        <button className="bg-[#d89860] hover:bg-[#c08850] px-4 py-2 rounded text-sm">
+        <button className="px-4 py-2 rounded text-sm">
           <LogoutButton />
         </button>
       </div>
@@ -74,13 +74,13 @@ export default function CoordinatorDashboard() {
           </div>
 
           {/* Card 5 - View Unscheduled Items */}
-          <div className="bg-white rounded-xl shadow-md p-6 text-center hover:-translate-y-1 transition-transform">
+          {/* <div className="bg-white rounded-xl shadow-md p-6 text-center hover:-translate-y-1 transition-transform">
             <Link href="/coordinator/unscheduled">
               <button className="w-full py-2 bg-[#d89860] text-white rounded-lg hover:bg-[#c08850]">
                 View Unscheduled Courses/Faculty
               </button>
             </Link>
-          </div>
+          </div> */}
         </div>
       </div>
     </ProtectedRoute>

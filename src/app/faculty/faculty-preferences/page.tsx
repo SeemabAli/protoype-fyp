@@ -6,8 +6,8 @@ import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import LogoutButton from "@/components/LogoutButton";
-import PreferenceModal from "./PreferenceModal";
 import toast from "react-hot-toast";
+import PreferenceModal from "./PreferenceModal";
 
 export default function FacultyPreferencesPage() {
   const { data: session } = useSession();

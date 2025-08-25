@@ -49,7 +49,7 @@ export default function PreferenceModal({
       return;
     }
 
-    // Zod validation
+    // Validation
     const validation = facultyPreferenceSchema.safeParse({ courses: selectedCourses });
     if (!validation.success) {
       toast.error(validation.error.issues[0].message);
@@ -58,7 +58,7 @@ export default function PreferenceModal({
 
     setLoading(true);
     try {
-      const method = currentPreferences ? "PUT" : "POST";
+      const method = "POST";
       const url = `/api/preferences/faculty/${facultyId}`;
 
       const body = {
@@ -92,29 +92,31 @@ export default function PreferenceModal({
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="sm:max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
         <DialogHeader>
-          <DialogTitle>Set Course Preferences</DialogTitle>
+          <DialogTitle className="text-[#493737]">Set Course Preferences</DialogTitle>
           <p className="text-sm text-gray-600">
-            Select at least 5 courses you would like to teach. You will be assigned 2-3 courses based on your preferences and priority.
+            Select at least 5 courses you would like to teach. You will be assigned 2-3 based on your preferences and priority.
           </p>
         </DialogHeader>
 
         <div className="flex-1 overflow-hidden grid grid-cols-1 lg:grid-cols-2 gap-6 mt-4">
           {/* Available Courses */}
           <div className="space-y-3 overflow-y-auto max-h-[60vh] pr-2">
-            <h3 className="font-medium">Available Courses</h3>
+            <h3 className="font-medium text-[#493737]">Available Courses</h3>
             {courses.map(course => {
               const isSelected = selectedCourses.includes(course._id);
               return (
                 <div
                   key={course._id}
                   className={`border rounded-lg p-3 cursor-pointer transition-all ${
-                    isSelected ? "border-blue-500 bg-blue-50" : "border-gray-200 hover:border-gray-300 bg-white"
+                    isSelected
+                      ? "border-[#493737] bg-[#fdf4ec]"
+                      : "border-gray-200 hover:border-gray-300 bg-white"
                   }`}
                   onClick={() => handleCourseToggle(course._id)}
                 >
                   <div className="flex items-center gap-2">
-                    <input type="checkbox" checked={isSelected} readOnly className="rounded text-blue-600" />
-                    <span className="font-medium text-blue-600">{course.code}</span>
+                    <input type="checkbox" checked={isSelected} readOnly className="rounded text-[#493737]" />
+                    <span className="font-medium text-[#493737]">{course.code}</span>
                   </div>
                   <h4 className="font-medium mt-1">{course.name}</h4>
                   <p className="text-sm text-gray-600">{course.department}</p>
@@ -122,7 +124,7 @@ export default function PreferenceModal({
                     <span className="text-xs text-gray-500">{course.creditHours} credit hours</span>
                     <span className="text-xs text-gray-500">{course.enrollment} students</span>
                     {course.multimediaRequired && (
-                      <span className="bg-orange-100 text-orange-800 px-1 py-0.5 rounded text-xs">Multimedia</span>
+                      <span className="bg-[#d89860]/20 text-[#d89860] px-1 py-0.5 rounded text-xs">Multimedia</span>
                     )}
                   </div>
                 </div>
@@ -132,7 +134,7 @@ export default function PreferenceModal({
 
           {/* Selected Courses Preview */}
           <div className="space-y-3 overflow-y-auto max-h-[60vh] pr-2">
-            <h3 className="font-medium">Your Selected Preferences</h3>
+            <h3 className="font-medium text-[#493737]">Your Selected Preferences</h3>
             {selectedCoursesDetails.length === 0 ? (
               <div className="text-center text-gray-500 py-8">
                 <p>No courses selected yet</p>
@@ -140,18 +142,14 @@ export default function PreferenceModal({
               </div>
             ) : (
               selectedCoursesDetails.map((course, index) => (
-                <div key={course._id} className="border border-blue-200 rounded-lg p-3 bg-blue-50 flex justify-between">
+                <div key={course._id} className="border border-[#d89860] rounded-lg p-3 bg-[#fdf4ec] flex justify-between">
                   <div>
                     <div className="flex items-center gap-2">
-                      <span className="bg-blue-600 text-white px-2 py-1 rounded text-xs font-medium">#{index + 1}</span>
-                      <span className="font-medium text-blue-600">{course.code}</span>
+                      <span className="bg-[#493737] text-white px-2 py-1 rounded text-xs font-medium">#{index + 1}</span>
+                      <span className="font-medium text-[#493737]">{course.code}</span>
                     </div>
                     <h4 className="font-medium mt-1">{course.name}</h4>
                     <p className="text-sm text-gray-600">{course.department}</p>
-                    <div className="flex items-center gap-3 mt-1">
-                      <span className="text-xs text-gray-500">{course.creditHours} credit hours</span>
-                      <span className="text-xs text-gray-500">{course.enrollment} students</span>
-                    </div>
                   </div>
                   <button
                     onClick={() => handleCourseToggle(course._id)}
@@ -179,7 +177,7 @@ export default function PreferenceModal({
             type="button"
             onClick={handleSave}
             disabled={loading || selectedCourses.length < 5}
-            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 disabled:opacity-50 flex items-center gap-2"
+            className="bg-[#493737] text-white px-4 py-2 rounded hover:bg-[#352727] disabled:opacity-50 flex items-center gap-2"
           >
             {loading ? "Saving..." : `Save ${selectedCourses.length} Preferences`}
           </button>

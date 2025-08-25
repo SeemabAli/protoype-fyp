@@ -4,7 +4,6 @@
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 
-// Custom type matching what we added in auth.ts
 interface CustomSessionUser {
   id: string;
   email: string;
@@ -52,36 +51,40 @@ export default function StudentDashboardPage() {
     fetchTimetable();
   }, [session]);
 
-  if (loading) return <p>Loading timetable...</p>;
+  if (loading)
+    return (
+      <div className="flex justify-center items-center h-60">
+        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600"></div>
+      </div>
+    );
 
   return (
-    <div className="p-6">
-      <h1 className="text-xl font-bold mb-4">My Timetable</h1>
+    <div className="p-6 min-h-screen bg-gray-50">
+      <h1 className="text-2xl font-bold mb-6">My Timetable</h1>
+
       {timetable.length === 0 ? (
-        <p>No timetable assigned yet.</p>
+        <div className="text-center py-12 text-gray-500">
+          <p>No timetable assigned yet.</p>
+          <p className="mt-2 text-sm">Please check back later.</p>
+        </div>
       ) : (
-        <table className="table-auto w-full border border-gray-300">
-          <thead>
-            <tr className="bg-gray-100">
-              <th className="border px-4 py-2">Day</th>
-              <th className="border px-4 py-2">Time</th>
-              <th className="border px-4 py-2">Course</th>
-              <th className="border px-4 py-2">Classroom</th>
-            </tr>
-          </thead>
-          <tbody>
-            {timetable.map((t, idx) => (
-              <tr key={idx}>
-                <td className="border px-4 py-2">{t.day}</td>
-                <td className="border px-4 py-2">
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {timetable.map((t, idx) => (
+            <div
+              key={idx}
+              className="bg-white shadow rounded-xl p-4 border border-gray-200 hover:shadow-md transition"
+            >
+              <div className="flex justify-between items-center mb-2">
+                <span className="text-sm text-gray-500 font-medium">{t.day}</span>
+                <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
                   {t.timeSlot?.start} - {t.timeSlot?.end}
-                </td>
-                <td className="border px-4 py-2">{t.course?.title}</td>
-                <td className="border px-4 py-2">{t.classroom?.classroomId}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                </span>
+              </div>
+              <h3 className="text-lg font-semibold text-gray-800">{t.course?.title}</h3>
+              <p className="text-sm text-gray-600 mt-1">Classroom: {t.classroom?.classroomId}</p>
+            </div>
+          ))}
+        </div>
       )}
     </div>
   );

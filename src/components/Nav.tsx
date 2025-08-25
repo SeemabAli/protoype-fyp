@@ -1,15 +1,20 @@
 "use client";
 import { useSession, signOut } from "next-auth/react";
+
 declare module "next-auth" {
   interface User {
-    role?: string | null;
+    id: string;
+    role: "admin" | "coordinator" | "faculty" | "student";
   }
+
   interface Session {
-    user?: {
+    user: {
+      id: string;
+      role: "admin" | "coordinator" | "faculty" | "student";
+    } & {
       name?: string | null;
       email?: string | null;
       image?: string | null;
-      role?: string | null;
     };
   }
 }
@@ -20,10 +25,12 @@ export default function Navbar() {
   return (
     <nav className="bg-primary-500 text-white p-4 flex justify-between">
       <span className="font-bold">Automated Timetable</span>
-      {session && (
+      {session?.user && (
         <div className="flex items-center gap-4">
-          <span>{session.user?.email} ({session.user?.role})</span>
-          <button onClick={() => signOut()} className="bg-red-500 px-3 py-1 rounded">
+          <span>
+            {session.user.email} ({session.user.role})
+          </span>
+          <button onClick={() => signOut()} className="px-3 py-1 rounded">
             Logout
           </button>
         </div>
