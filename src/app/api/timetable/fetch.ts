@@ -1,22 +1,22 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextResponse } from "next/server";
-import Timetable from "@/models/Timetable";
 import { connectDB } from "@/lib/mongoose";
+import Timetable from "@/models/Timetable";
 
 export async function GET() {
-  await connectDB();
-
   try {
-    const timetable = await Timetable.find({})
-      .populate("course", "code title")
-      .populate("faculty", "name")
-      .populate("classroom", "classroomId building")
-      .populate("timeSlot", "day start end")
+    await connectDB();
+
+    const entries = await Timetable.find({})
+      .populate("course")
+      .populate("faculty")
+      .populate("classroom")
+      .populate("timeSlot")
       .lean();
 
-    return NextResponse.json({ success: true, timetable });
+    return NextResponse.json({ timetable: entries }, { status: 200 });
   } catch (err: any) {
-    console.error("Error fetching timetable:", err);
-    return NextResponse.json({ error: err.message }, { status: 500 });
+    console.error("GET timetable fetch error:", err);
+    return NextResponse.json({ error: "Failed to fetch timetable" }, { status: 500 });
   }
 }
