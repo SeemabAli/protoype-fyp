@@ -1,3 +1,4 @@
+// src/models/Classroom.ts
 import mongoose, { Schema, Document, Model } from "mongoose";
 
 export interface IClassroom extends Document {
@@ -9,8 +10,8 @@ export interface IClassroom extends Document {
 
 const ClassroomSchema: Schema<IClassroom> = new Schema(
   {
-    classroomId: { type: String, required: true, unique: true },
-    building: { type: String, required: true },
+    classroomId: { type: String, required: true, unique: true }, // e.g. B1-F0-01
+    building: { type: String, required: true }, // e.g. Block 1
     capacity: { type: Number, required: true },
     multimedia: { type: Boolean, required: true },
   },

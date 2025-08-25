@@ -9,10 +9,10 @@ import toast from "react-hot-toast";
 import { z } from "zod";
 
 const classroomSchema = z.object({
-  name: z.string().min(2, "Classroom name is required (e.g., B1-F0-01)"),
-  location: z.string().min(2, "Building/Location is required (e.g., Block 1)"),
+  classroomId: z.string().min(2, "Classroom ID is required (e.g., B1-F0-01)"),
+  building: z.string().min(2, "Building is required (e.g., Block 1)"),
   capacity: z.number().min(1, "Capacity must be at least 1"),
-  hasMultimedia: z.boolean(),
+  multimedia: z.boolean(),
 });
 
 interface Props {
@@ -24,37 +24,33 @@ interface Props {
 
 export default function ClassroomModal({ open, setOpen, selected, refresh }: Props) {
   const [form, setForm] = useState({
-    name: "",
-    location: "",
+    classroomId: "",
+    building: "",
     capacity: "",
-    hasMultimedia: false,
+    multimedia: false,
   });
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (selected) {
       setForm({
-        name: selected.name || "",
-        location: selected.location || "",
+        classroomId: selected.classroomId || "",
+        building: selected.building || "",
         capacity: selected.capacity?.toString() || "",
-        hasMultimedia: selected.hasMultimedia || false,
+        multimedia: selected.multimedia || false,
       });
     } else {
       setForm({
-        name: "",
-        location: "",
+        classroomId: "",
+        building: "",
         capacity: "",
-        hasMultimedia: false,
+        multimedia: false,
       });
     }
   }, [selected]);
 
   const handleSave = async () => {
-    // Convert capacity to number for validation
-    const formData = {
-      ...form,
-      capacity: parseInt(form.capacity) || 0,
-    };
+    const formData = { ...form, capacity: parseInt(form.capacity) || 0 };
 
     const parsed = classroomSchema.safeParse(formData);
     if (!parsed.success) {
@@ -65,7 +61,7 @@ export default function ClassroomModal({ open, setOpen, selected, refresh }: Pro
     setLoading(true);
     try {
       const method = selected ? "PUT" : "POST";
-      const url = selected ? `/api/classrooms?id=${selected._id}` : "/api/classrooms";
+      const url = selected ? `/api/classrooms/${selected._id}` : "/api/classrooms";
 
       const res = await fetch(url, {
         method,
@@ -74,7 +70,7 @@ export default function ClassroomModal({ open, setOpen, selected, refresh }: Pro
       });
 
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || `Failed to ${selected ? 'update' : 'create'} classroom`);
+      if (!res.ok) throw new Error(data.error || `Failed to ${selected ? "update" : "create"} classroom`);
 
       toast.success(`Classroom ${selected ? "updated" : "created"} successfully`);
       refresh();
@@ -87,41 +83,24 @@ export default function ClassroomModal({ open, setOpen, selected, refresh }: Pro
     }
   };
 
-  const handleCancel = () => {
-    setOpen(false);
-    // Reset form
-    if (selected) {
-      setForm({
-        name: selected.name || "",
-        location: selected.location || "",
-        capacity: selected.capacity?.toString() || "",
-        hasMultimedia: selected.hasMultimedia || false,
-      });
-    } else {
-      setForm({
-        name: "",
-        location: "",
-        capacity: "",
-        hasMultimedia: false,
-      });
-    }
-  };
-
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>{selected ? "Edit Classroom" : "Add New Classroom"}</DialogTitle>
+          <DialogTitle className="text-[#493737]">
+            {selected ? "Edit Classroom" : "Add New Classroom"}
+          </DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4 py-4">
+          {/* Classroom ID */}
           <div className="space-y-2">
-            <Label htmlFor="name">Classroom ID *</Label>
+            <Label htmlFor="classroomId">Classroom ID *</Label>
             <Input
-              id="name"
-              value={form.name}
-              onChange={(e) => setForm({ ...form, name: e.target.value })}
-              placeholder="e.g., B1-F0-01, B1-F1-01"
+              id="classroomId"
+              value={form.classroomId}
+              onChange={(e) => setForm({ ...form, classroomId: e.target.value })}
+              placeholder="e.g., B1-F0-01"
               disabled={loading}
             />
             <p className="text-xs text-gray-500">
@@ -129,17 +108,19 @@ export default function ClassroomModal({ open, setOpen, selected, refresh }: Pro
             </p>
           </div>
 
+          {/* Building */}
           <div className="space-y-2">
-            <Label htmlFor="location">Building/Location *</Label>
+            <Label htmlFor="building">Building *</Label>
             <Input
-              id="location"
-              value={form.location}
-              onChange={(e) => setForm({ ...form, location: e.target.value })}
-              placeholder="e.g., Block 1, Block 2, Main Building"
+              id="building"
+              value={form.building}
+              onChange={(e) => setForm({ ...form, building: e.target.value })}
+              placeholder="e.g., Block 1"
               disabled={loading}
             />
           </div>
 
+          {/* Capacity */}
           <div className="space-y-2">
             <Label htmlFor="capacity">Seating Capacity *</Label>
             <Input
@@ -149,7 +130,7 @@ export default function ClassroomModal({ open, setOpen, selected, refresh }: Pro
               max="500"
               value={form.capacity}
               onChange={(e) => setForm({ ...form, capacity: e.target.value })}
-              placeholder="e.g., 50, 70, 80"
+              placeholder="e.g., 50, 70"
               disabled={loading}
             />
             <p className="text-xs text-gray-500">
@@ -157,6 +138,7 @@ export default function ClassroomModal({ open, setOpen, selected, refresh }: Pro
             </p>
           </div>
 
+          {/* Multimedia */}
           <div className="space-y-2">
             <Label className="text-base">Multimedia Availability</Label>
             <div className="flex items-center space-x-3">
@@ -164,10 +146,10 @@ export default function ClassroomModal({ open, setOpen, selected, refresh }: Pro
                 <input
                   type="radio"
                   name="multimedia"
-                  checked={form.hasMultimedia === true}
-                  onChange={() => setForm({ ...form, hasMultimedia: true })}
+                  checked={form.multimedia === true}
+                  onChange={() => setForm({ ...form, multimedia: true })}
                   disabled={loading}
-                  className="text-blue-600"
+                  className="text-[#d89860]"
                 />
                 <span className="text-sm">Yes - Has multimedia equipment</span>
               </label>
@@ -175,24 +157,21 @@ export default function ClassroomModal({ open, setOpen, selected, refresh }: Pro
                 <input
                   type="radio"
                   name="multimedia"
-                  checked={form.hasMultimedia === false}
-                  onChange={() => setForm({ ...form, hasMultimedia: false })}
+                  checked={form.multimedia === false}
+                  onChange={() => setForm({ ...form, multimedia: false })}
                   disabled={loading}
-                  className="text-blue-600"
+                  className="text-[#d89860]"
                 />
                 <span className="text-sm">No - No multimedia equipment</span>
               </label>
             </div>
-            <p className="text-xs text-gray-500">
-              Does this classroom have projector, speakers, and other multimedia equipment?
-            </p>
           </div>
         </div>
 
         <DialogFooter className="flex gap-2">
           <button
             type="button"
-            onClick={handleCancel}
+            onClick={() => setOpen(false)}
             disabled={loading}
             className="px-4 py-2 text-gray-600 border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50"
           >
@@ -201,13 +180,13 @@ export default function ClassroomModal({ open, setOpen, selected, refresh }: Pro
           <button
             type="button"
             onClick={handleSave}
-            disabled={loading || !form.name || !form.location || !form.capacity}
-            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+            disabled={loading || !form.classroomId || !form.building || !form.capacity}
+            className="bg-[#d89860] text-white px-4 py-2 rounded hover:bg-[#c08850] disabled:opacity-50 flex items-center gap-2"
           >
             {loading && (
               <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
               </svg>
             )}
             {loading ? "Saving..." : "Save"}
