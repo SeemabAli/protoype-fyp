@@ -1,29 +1,25 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 // src/app/api/classrooms/route.ts
 import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/mongoose";
 import Classroom from "@/models/Classroom";
-import { z } from "zod";
+import { classroomSchema } from "@/lib/zodSchemas";
 
-const classroomSchema = z.object({
-  classroomId: z.string().min(2, "Classroom ID is required"),
-  building: z.string().min(2, "Building is required"),
-  capacity: z.number().min(1, "Capacity must be at least 1"),
-  multimedia: z.boolean(),
-});
-
-// ========== GET All ==========
+// ✅ Get all classrooms
 export async function GET() {
   try {
     await connectDB();
-    const classrooms = await Classroom.find();
-    return NextResponse.json(classrooms, { status: 200 });
+    const items = await Classroom.find().sort({ createdAt: -1 });
+    return NextResponse.json({ success: true, data: items });
   } catch (err) {
-    return NextResponse.json({ error: "Failed to fetch classrooms" }, { status: 500 });
+    console.error("GET /api/classrooms error:", err);
+    return NextResponse.json(
+      { success: false, error: "Failed to fetch classrooms" },
+      { status: 500 }
+    );
   }
 }
 
-// ========== POST ==========
+// ✅ Create a new classroom
 export async function POST(req: Request) {
   try {
     await connectDB();
@@ -32,15 +28,27 @@ export async function POST(req: Request) {
     const parsed = classroomSchema.safeParse(body);
     if (!parsed.success) {
       return NextResponse.json(
-        { error: parsed.error.issues.map((i) => i.message).join(", ") },
+        { success: false, errors: parsed.error.flatten().fieldErrors },
         { status: 400 }
       );
     }
 
-    const classroom = new Classroom(parsed.data);
-    await classroom.save();
-    return NextResponse.json(classroom, { status: 201 });
+    // ✅ Check uniqueness by classroomId
+    const exists = await Classroom.findOne({ classroomId: parsed.data.classroomId });
+    if (exists) {
+      return NextResponse.json(
+        { success: false, message: "Classroom ID already exists" },
+        { status: 409 }
+      );
+    }
+
+    const item = await Classroom.create(parsed.data);
+    return NextResponse.json({ success: true, data: item }, { status: 201 });
   } catch (err) {
-    return NextResponse.json({ error: "Failed to create classroom" }, { status: 500 });
+    console.error("POST /api/classrooms error:", err);
+    return NextResponse.json(
+      { success: false, error: "Failed to create classroom" },
+      { status: 500 }
+    );
   }
 }

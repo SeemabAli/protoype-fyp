@@ -1,27 +1,25 @@
-import mongoose, { Schema, Document, Model } from "mongoose";
+// src/models/Course.ts
+import { Schema, Document, models, model } from "mongoose";
 
 export interface ICourse extends Document {
   code: string;
   title: string;
   enrollment: number;
   multimediaRequired: boolean;
-  studentBatch?: string;
-  preferredFacultyIds?: string[];
+  studentBatch?: string | null;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
-const CourseSchema: Schema<ICourse> = new Schema(
+const CourseSchema = new Schema<ICourse>(
   {
-    code: { type: String, required: true, unique: true },
-    title: { type: String, required: true },
-    enrollment: { type: Number, required: true },
-    multimediaRequired: { type: Boolean, required: true },
-    studentBatch: { type: String },
-    preferredFacultyIds: [{ type: Schema.Types.ObjectId, ref: "Faculty" }],
+    code: { type: String, required: true, unique: true, trim: true },
+    title: { type: String, required: true, trim: true },
+    enrollment: { type: Number, required: true, min: 0 },
+    multimediaRequired: { type: Boolean, default: false },
+    studentBatch: { type: String, default: null },
   },
   { timestamps: true }
 );
 
-const Course: Model<ICourse> =
-  mongoose.models.Course || mongoose.model<ICourse>("Course", CourseSchema);
-
-export default Course;
+export default models.Course || model<ICourse>("Course", CourseSchema);

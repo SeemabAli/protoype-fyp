@@ -29,6 +29,6 @@
     "**/*.tsx",
     ".next/types/**/*.ts",
     "src/types"
-  ],
+, "src/app/api/schedule/generate"  ],
   "exclude": ["node_modules"]
 }

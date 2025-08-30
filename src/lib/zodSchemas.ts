@@ -1,47 +1,39 @@
+// src/lib/zodSchemas.ts
 import { z } from "zod";
 
-export const facultySchema = z.object({
-  name: z.string().min(2, "Name is too short"),
-  email: z.string().email("Invalid email"),
-  department: z.string().min(2, "Department is required"),
-});
-
-export const studentSchema = z.object({
-  name: z.string().min(2, "Name is required"),
-  email: z.string().email("Invalid email"),
-  registrationNumber: z.string().min(3, "Registration number is required"),
-  department: z.string().min(2, "Department is required"),
-  semester: z.number().min(1).max(8),
-  section: z.string().optional(),
-});
-
-
-export const coordinatorSchema = z.object({
-  name: z.string().min(2, "Name is too short"),
-  email: z.string().email("Invalid email"),
-  department: z.string().min(2, "Department is required"),
-});
-
-export const signInSchema = z.object({
-  email: z.string().email("Invalid email format"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
-});
+export const designationEnum = z.enum([
+  "Professor",
+  "Associate Professor",
+  "Assistant Professor",
+  "Lecturer",
+]);
 
 export const courseSchema = z.object({
-  code: z.string().min(2, "Course code is required"),
+  code: z.string().min(2, "Course code is required").transform((s) => s.toUpperCase()),
   title: z.string().min(3, "Course title is required"),
-  enrollment: z.number().min(1, "Enrollment must be at least 1"),
+  enrollment: z.number().min(0, "Enrollment must be >= 0"),
   multimediaRequired: z.boolean(),
-  studentBatch: z.string().optional(),
+  studentBatch: z.string().optional().nullable(),
+});
+
+export const facultySchema = z.object({
+  facultyId: z.string().min(1, "Faculty ID required"),
+  name: z.string().min(2, "Name required"),
+  email: z.string().email().optional(),
+  department: z.string().min(2, "Department required"),
+  designation: designationEnum,
+  coursePreferences: z.array(z.string().min(1)).min(5, "At least 5 course preferences required"),
+  timePreferences: z.array(z.string()).optional(),
 });
 
 export const classroomSchema = z.object({
-  classroomId: z.string().min(2, "Classroom ID is required"),
-  building: z.string().min(2, "Building is required"),
-  capacity: z.number().min(1, "Capacity must be at least 1"),
-  multimedia: z.boolean(),
+  classroomId: z.string().min(1, "Classroom ID required"),
+  building: z.string().optional().nullable(),
+  capacity: z.number().min(1, "Capacity must be >= 1"),
+  multimediaAvailable: z.boolean(),
+  availableSlots: z.array(z.string()).optional(),
 });
 
-export const facultyPreferenceSchema = z.object({
-  courses: z.array(z.string()).min(5, "You must select at least 5 courses"),
-});
+export type CourseInput = z.infer<typeof courseSchema>;
+export type FacultyInput = z.infer<typeof facultySchema>;
+export type ClassroomInput = z.infer<typeof classroomSchema>;

@@ -1,57 +1,50 @@
-import mongoose, { Schema, Document, Types, Model } from "mongoose";
-import { z } from "zod";
+// src/models/Faculty.ts
+import { Schema, Document, models, model } from "mongoose";
 
-export interface ICoursePreference {
-  courseId: Types.ObjectId;
-  timeSlots: Types.ObjectId[];
-}
+export type Designation =
+  | "Professor"
+  | "Associate Professor"
+  | "Assistant Professor"
+  | "Lecturer";
 
 export interface IFaculty extends Document {
+  facultyId: string;
   name: string;
-  email: string;
+  email?: string;
   department: string;
-  designation: "Lecturer" | "AssistantProfessor" | "AssociateProfessor" | "Professor";
-  preferences: ICoursePreference[];
-  preferenceSubmittedAt?: Date;
+  designation: Designation;
+  coursePreferences: string[]; // names or codes of courses
+  timePreferences?: string[];  // optional free-form strings
+  assignedCourses: string[];
+  submittedAt: Date;
+  createdAt: Date;
+  updatedAt: Date;
 }
-
-const CoursePreferenceSchema = new Schema<ICoursePreference>(
-  {
-    courseId: { type: Schema.Types.ObjectId, ref: "Course", required: true },
-    timeSlots: [{ type: Schema.Types.ObjectId, ref: "Timeslot", required: true }],
-  },
-  { _id: false }
-);
 
 const FacultySchema = new Schema<IFaculty>(
   {
-    name: { type: String, required: true },
-    email: { type: String, required: true, unique: true },
-    department: { type: String, required: true },
+    facultyId: { type: String, required: true, unique: true, trim: true },
+    name: { type: String, required: true, trim: true },
+    email: { type: String, required: false, trim: true },
+    department: { type: String, required: true, trim: true },
     designation: {
       type: String,
-      enum: ["Lecturer", "AssistantProfessor", "AssociateProfessor", "Professor"],
+      enum: ["Professor", "Associate Professor", "Assistant Professor", "Lecturer"],
       required: true,
     },
-    preferences: { type: [CoursePreferenceSchema], default: [] },
-    preferenceSubmittedAt: Date,
+    coursePreferences: {
+      type: [String],
+      required: true,
+      validate: {
+        validator: (arr: string[]) => Array.isArray(arr) && arr.length >= 5,
+        message: "At least five course preferences are required.",
+      },
+    },
+    timePreferences: { type: [String], default: [] },
+    assignedCourses: { type: [String], default: [] },
+    submittedAt: { type: Date, default: () => new Date() },
   },
   { timestamps: true }
 );
 
-// Zod validation schema
-export const coursePreferencesSchema = z.object({
-  preferences: z
-    .array(
-      z.object({
-        courseId: z.string().min(1, "Invalid course ID"),
-        timeSlots: z.array(z.string()).min(1, "At least one time slot is required"),
-      })
-    )
-    .length(5, "Exactly 5 course preferences are required"),
-});
-
-const Faculty: Model<IFaculty> =
-  mongoose.models.Faculty || mongoose.model<IFaculty>("Faculty", FacultySchema);
-
-export default Faculty;
+export default models.Faculty || model<IFaculty>("Faculty", FacultySchema);

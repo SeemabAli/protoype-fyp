@@ -1,66 +1,47 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+// src/app/api/courses/[id]/route.ts
 import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/mongoose";
 import Course from "@/models/Course";
-import { z } from "zod";
+import { courseSchema } from "@/lib/zodSchemas";
 
-export const courseUpdateSchema = z.object({
-  code: z.string().min(2).optional(),
-  title: z.string().min(3).optional(),
-  enrollment: z.number().min(1).optional(),
-  multimediaRequired: z.boolean().optional(),
-  studentBatch: z.string().optional().nullable(),
-});
+type Params = { params: { id: string } };
 
-// GET /api/courses/[id]
-export async function GET(_: Request, { params }: { params: { id: string } }) {
+export async function GET(_req: Request, { params }: Params) {
   try {
     await connectDB();
-    const course = await Course.findById(params.id);
-    if (!course) return NextResponse.json({ error: "Course not found" }, { status: 404 });
-    return NextResponse.json(course, { status: 200 });
-  } catch (error) {
-    console.error("Error fetching course:", error);
-    return NextResponse.json({ error: "Failed to fetch course" }, { status: 500 });
+    const c = await Course.findById(params.id);
+    if (!c) return NextResponse.json({ success: false, error: "Not found" }, { status: 404 });
+    return NextResponse.json({ success: true, data: c });
+  } catch (err) {
+    console.error("GET /api/courses/[id] error:", err);
+    return NextResponse.json({ success: false, error: "Failed" }, { status: 500 });
   }
 }
 
-// PUT /api/courses/[id]
-export async function PUT(req: Request, { params }: { params: { id: string } }) {
+export async function PUT(req: Request, { params }: Params) {
   try {
     await connectDB();
     const body = await req.json();
+    const parsed = courseSchema.safeParse(body);
+    if (!parsed.success) return NextResponse.json({ success: false, error: parsed.error.issues[0].message }, { status: 400 });
 
-    const parsed = courseUpdateSchema.safeParse(body);
-    if (!parsed.success) {
-      return NextResponse.json(
-        { error: parsed.error.issues.map((i) => i.message).join(", ") },
-        { status: 400 }
-      );
-    }
-
-    const update: any = { ...parsed.data };
-    if (update.code) update.code = update.code.toUpperCase();
-
-    const updated = await Course.findByIdAndUpdate(params.id, update, { new: true });
-    if (!updated) return NextResponse.json({ error: "Course not found" }, { status: 404 });
-
-    return NextResponse.json(updated, { status: 200 });
-  } catch (error) {
-    console.error("Error updating course:", error);
-    return NextResponse.json({ error: "Failed to update course" }, { status: 500 });
+    const updated = await Course.findByIdAndUpdate(params.id, parsed.data, { new: true });
+    if (!updated) return NextResponse.json({ success: false, error: "Not found" }, { status: 404 });
+    return NextResponse.json({ success: true, data: updated });
+  } catch (err) {
+    console.error("PUT /api/courses/[id] error:", err);
+    return NextResponse.json({ success: false, error: "Failed to update" }, { status: 500 });
   }
 }
 
-// DELETE /api/courses/[id]
-export async function DELETE(_: Request, { params }: { params: { id: string } }) {
+export async function DELETE(_req: Request, { params }: Params) {
   try {
     await connectDB();
     const deleted = await Course.findByIdAndDelete(params.id);
-    if (!deleted) return NextResponse.json({ error: "Course not found" }, { status: 404 });
-    return NextResponse.json({ message: "Course deleted successfully" }, { status: 200 });
-  } catch (error) {
-    console.error("Error deleting course:", error);
-    return NextResponse.json({ error: "Failed to delete course" }, { status: 500 });
+    if (!deleted) return NextResponse.json({ success: false, error: "Not found" }, { status: 404 });
+    return NextResponse.json({ success: true, data: deleted });
+  } catch (err) {
+    console.error("DELETE /api/courses/[id] error:", err);
+    return NextResponse.json({ success: false, error: "Failed to delete" }, { status: 500 });
   }
 }
