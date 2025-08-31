@@ -12,6 +12,7 @@ import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import toast from "react-hot-toast";
+// Remove Lucide Badge import, use a custom badge below
 
 interface Props {
   open: boolean;
@@ -31,7 +32,9 @@ export default function ClassroomModal({
     capacity: "",
     multimediaAvailable: false,
     building: "",
+    availableSlots: [] as string[],
   });
+  const [slotInput, setSlotInput] = useState("");
 
   useEffect(() => {
     if (selected) {
@@ -40,6 +43,7 @@ export default function ClassroomModal({
         capacity: selected.capacity || "",
         multimediaAvailable: selected.multimediaAvailable || false,
         building: selected.building || "",
+        availableSlots: selected.availableSlots || [],
       });
     } else {
       setForm({
@@ -47,6 +51,7 @@ export default function ClassroomModal({
         capacity: "",
         multimediaAvailable: false,
         building: "",
+        availableSlots: [],
       });
     }
   }, [selected]);
@@ -59,6 +64,22 @@ export default function ClassroomModal({
     }));
   };
 
+  const addSlot = () => {
+    if (!slotInput.trim()) return;
+    setForm((prev) => ({
+      ...prev,
+      availableSlots: [...prev.availableSlots, slotInput.trim()],
+    }));
+    setSlotInput("");
+  };
+
+  const removeSlot = (slot: string) => {
+    setForm((prev) => ({
+      ...prev,
+      availableSlots: prev.availableSlots.filter((s) => s !== slot),
+    }));
+  };
+
   const handleSubmit = async () => {
     try {
       const method = selected ? "PUT" : "POST";
@@ -68,7 +89,12 @@ export default function ClassroomModal({
       const res = await fetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...form, capacity: Number(form.capacity) }),
+        body: JSON.stringify({
+          ...form,
+          capacity: Number(form.capacity),
+          availableSlots:
+            form.availableSlots.length > 0 ? form.availableSlots : ["ALL"],
+        }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Failed");
@@ -82,56 +108,105 @@ export default function ClassroomModal({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="sm:max-w-lg">
+      <DialogContent className="sm:max-w-lg rounded-2xl shadow-2xl border border-[#d89860]/30">
         <DialogHeader>
-          <DialogTitle>
+          <DialogTitle className="text-2xl font-bold text-[#493737]">
             {selected ? "Edit Classroom" : "Add Classroom"}
           </DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-4 py-4">
+        <div className="space-y-5 py-4">
+          {/* Classroom ID */}
           <div>
-            <Label>Classroom ID</Label>
+            <Label className="font-semibold">Classroom ID</Label>
             <Input
               name="classroomId"
               value={form.classroomId}
               onChange={handleChange}
+              className="mt-1 rounded-xl border-[#d89860]/40 focus:ring-[#d89860]"
+              placeholder="e.g. B1-F0-01"
             />
           </div>
-          <div>
-            <Label>Capacity</Label>
-            <Input
-              type="number"
-              name="capacity"
-              value={form.capacity}
-              onChange={handleChange}
-            />
+
+          {/* Building + Capacity */}
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label className="font-semibold">Building</Label>
+              <Input
+                name="building"
+                value={form.building}
+                onChange={handleChange}
+                className="mt-1 rounded-xl border-[#d89860]/40"
+                placeholder="Block 1"
+              />
+            </div>
+            <div>
+              <Label className="font-semibold">Capacity</Label>
+              <Input
+                type="number"
+                name="capacity"
+                value={form.capacity}
+                onChange={handleChange}
+                className="mt-1 rounded-xl border-[#d89860]/40"
+                placeholder="70"
+              />
+            </div>
           </div>
-          <div>
-            <Label>Building</Label>
-            <Input
-              name="building"
-              value={form.building}
-              onChange={handleChange}
-            />
-          </div>
+
+          {/* Multimedia */}
           <div className="flex items-center gap-2">
             <input
               type="checkbox"
               name="multimediaAvailable"
               checked={form.multimediaAvailable}
               onChange={handleChange}
+              className="h-4 w-4 accent-[#d89860]"
             />
-            <Label>Multimedia Available</Label>
+            <Label className="font-semibold">Multimedia Available</Label>
+          </div>
+
+          {/* Available Slots */}
+          <div>
+            <Label className="font-semibold">Available Slots</Label>
+            <div className="flex gap-2 mt-2">
+              <Input
+                value={slotInput}
+                onChange={(e) => setSlotInput(e.target.value)}
+                placeholder="e.g. 09:30am – 11:00am"
+                className="rounded-xl border-[#d89860]/40"
+              />
+              <button
+                onClick={addSlot}
+                type="button"
+                className="px-3 py-1 rounded-xl bg-gradient-to-r from-[#d89860] to-[#e0a670] text-white text-sm"
+              >
+                Add
+              </button>
+            </div>
+            <div className="flex flex-wrap gap-2 mt-2">
+              {form.availableSlots.map((s, i) => (
+                <span
+                  key={i}
+                  className="bg-[#d89860]/20 text-[#493737] rounded-xl px-2 py-1 cursor-pointer inline-flex items-center"
+                  onClick={() => removeSlot(s)}
+                  style={{ userSelect: "none" }}
+                >
+                  {s} &nbsp;✕
+                </span>
+              ))}
+              {form.availableSlots.length === 0 && (
+                <span className="text-sm text-gray-500">Default: ALL</span>
+              )}
+            </div>
           </div>
         </div>
 
         <DialogFooter>
           <button
             onClick={handleSubmit}
-            className="px-4 py-2 rounded-xl bg-gradient-to-r from-[#d89860] to-[#e0a670] text-white"
+            className="w-full px-4 py-2 rounded-xl bg-gradient-to-r from-[#d89860] to-[#e0a670] text-white font-semibold shadow-md"
           >
-            {selected ? "Update" : "Add"}
+            {selected ? "Update Classroom" : "Add Classroom"}
           </button>
         </DialogFooter>
       </DialogContent>

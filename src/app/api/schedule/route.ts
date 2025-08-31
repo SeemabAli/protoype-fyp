@@ -8,9 +8,15 @@ export async function GET() {
 
     const schedule = await Timetable.find()
       .populate([
-        { path: "course", select: "code title enrollment multimediaRequired studentBatch" },
+        {
+          path: "course",
+          select: "code title enrollment multimediaRequired studentBatch",
+        },
         { path: "faculty", select: "facultyId name department designation" },
-        { path: "classroom", select: "classroomId building capacity multimediaAvailable" }
+        {
+          path: "classroom",
+          select: "classroomId building capacity multimediaAvailable",
+        },
       ])
       .sort({ day: 1, slot: 1 })
       .lean();
