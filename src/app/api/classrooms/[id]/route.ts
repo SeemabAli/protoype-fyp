@@ -4,13 +4,11 @@ import { connectDB } from "@/lib/mongoose";
 import Classroom from "@/models/Classroom";
 import { classroomSchema } from "@/lib/zodSchemas";
 
-export async function GET(
-  req: Request,
-  { params }: { params: { id: string } }
-) {
+// ✅ Get classroom by ID
+export async function GET(_req: Request, context: { params: { id: string } }) {
   try {
     await connectDB();
-    const classroom = await Classroom.findById(params.id);
+    const classroom = await Classroom.findById(context.params.id);
     if (!classroom) {
       return NextResponse.json(
         { success: false, message: "Classroom not found" },
@@ -27,10 +25,8 @@ export async function GET(
   }
 }
 
-export async function PUT(
-  req: Request,
-  { params }: { params: { id: string } }
-) {
+// ✅ Update classroom by ID
+export async function PUT(req: Request, context: { params: { id: string } }) {
   try {
     await connectDB();
     const body = await req.json();
@@ -44,7 +40,7 @@ export async function PUT(
     }
 
     const classroom = await Classroom.findByIdAndUpdate(
-      params.id,
+      context.params.id,
       parsed.data,
       { new: true }
     );
@@ -65,13 +61,11 @@ export async function PUT(
   }
 }
 
-export async function DELETE(
-  req: Request,
-  { params }: { params: { id: string } }
-) {
+// ✅ Delete classroom by ID
+export async function DELETE(_req: Request, context: { params: { id: string } }) {
   try {
     await connectDB();
-    const classroom = await Classroom.findByIdAndDelete(params.id);
+    const classroom = await Classroom.findByIdAndDelete(context.params.id);
     if (!classroom) {
       return NextResponse.json(
         { success: false, message: "Classroom not found" },
