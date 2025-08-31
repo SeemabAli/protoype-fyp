@@ -1,3 +1,4 @@
+/* eslint-disable prefer-const */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/mongoose";
@@ -9,68 +10,93 @@ import Classroom from "@/models/Classroom";
 export async function POST() {
   try {
     await connectDB();
-
-    // Clear old schedule
     await Timetable.deleteMany({});
 
-    const faculties = await Faculty.find();
-    const courses = await Course.find();
-    const classrooms = await Classroom.find();
+    const faculties = await Faculty.find().lean();
+    const courses = await Course.find().lean();
+    const classrooms = await Classroom.find().lean();
 
-    // 1️⃣ Build preference map
+    // Map courseCode -> course document
+    const courseMap: Record<string, any> = {};
+    courses.forEach(c => { courseMap[c.code] = c; });
+
+    // Build preference map: courseCode -> faculty[]
     const courseRequests: Record<string, any[]> = {};
-    type FacultyType = {
-      _id: string;
-      designation: "Professor" | "AssociateProfessor" | "AssistantProfessor" | "Lecturer";
-      preferences?: any[];
-      submittedAt: string;
-    };
-
-    faculties.forEach((f: FacultyType) => {
-      (f.preferences || []).forEach((pref: any) => {
-        if (!courseRequests[pref.courseId]) courseRequests[pref.courseId] = [];
-        courseRequests[pref.courseId].push(f);
+    faculties.forEach(f => {
+      (f.coursePreferences || []).forEach((code: string) => {
+        if (courseMap[code]) {
+          if (!courseRequests[code]) courseRequests[code] = [];
+          courseRequests[code].push(f);
+        }
       });
     });
 
+    const priority: Record<string, number> = {
+      Professor: 4,
+      "Associate Professor": 3,
+      "Assistant Professor": 2,
+      Lecturer: 1,
+    };
+
     const scheduled: any[] = [];
+    const defaultSlots = [
+      "08:00am – 09:30am",
+      "09:30am – 11:00am",
+      "11:00am – 12:30pm",
+      "01:30pm – 03:00pm",
+      "03:00pm – 04:30pm",
+    ];
+    const defaultDays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
 
-    // 2️⃣ Assign courses to faculty
-    for (const course of courses) {
-      const requestingFaculty: FacultyType[] = courseRequests[course.courseId] || [];
+    for (const code of Object.keys(courseRequests)) {
+      const course = courseMap[code];
+      if (!course) continue;
 
-      if (requestingFaculty.length === 0) continue; // no faculty requested
+      let requestingFaculty = courseRequests[code];
+      if (requestingFaculty.length === 0) continue;
 
-      const priority: { [key in FacultyType["designation"]]: number } = { Professor: 4, AssociateProfessor: 3, AssistantProfessor: 2, Lecturer: 1 };
-      requestingFaculty.sort((a: FacultyType, b: FacultyType) => {
+      // Sort by designation then submission time
+      requestingFaculty.sort((a: any, b: any) => {
         if (priority[b.designation] !== priority[a.designation]) {
           return priority[b.designation] - priority[a.designation];
         }
         return new Date(a.submittedAt).getTime() - new Date(b.submittedAt).getTime();
       });
+
       const chosenFaculty = requestingFaculty[0];
 
-      // 3️⃣ Find suitable classroom
+      // Pick classroom
       const room = classrooms.find(
-        (r) =>
+        r =>
           r.capacity >= course.enrollment &&
           (!course.multimediaRequired || r.multimediaAvailable)
       );
-      if (!room) continue; // no room available
+      if (!room) continue;
 
-      // 4️⃣ Pick a time slot
-      const day = "Monday"; // For prototype: just assign first available
-      const slot = "09:30am – 11:00am";
+      // Pick time slot
+      let chosenDay = defaultDays[Math.floor(Math.random() * defaultDays.length)];
+      let chosenSlot = defaultSlots[Math.floor(Math.random() * defaultSlots.length)];
 
-      // 5️⃣ Save to timetable
+      if (chosenFaculty.timePreferences?.length) {
+        const first = chosenFaculty.timePreferences[0];
+        // Expect "Monday 09:30am – 11:00am" or similar format
+        const parts = first.split(" ");
+        if (parts.length >= 2) {
+          chosenDay = parts[0];
+          chosenSlot = parts.slice(1).join(" ");
+        }
+      }
+
+      // Save to timetable
       const entry = await Timetable.create({
         course: course._id,
         faculty: chosenFaculty._id,
         classroom: room._id,
-        day,
-        slot,
+        day: chosenDay,
+        slot: chosenSlot,
       });
 
+      await entry.populate("course faculty classroom");
       scheduled.push(entry);
     }
 

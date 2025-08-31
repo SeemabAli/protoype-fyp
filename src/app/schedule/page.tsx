@@ -57,9 +57,15 @@ export default function SchedulePage() {
                 <tr key={idx} className="border-b hover:bg-gray-50">
                   <td className="px-4 py-2">{s.day}</td>
                   <td className="px-4 py-2">{s.slot}</td>
-                  <td className="px-4 py-2">{s.course?.courseId}</td>
-                  <td className="px-4 py-2">{s.faculty?.name}</td>
-                  <td className="px-4 py-2">{s.classroom?.classroomId}</td>
+                  <td className="px-4 py-2">
+                    {s.course?.title || s.course?.code || "N/A"}
+                  </td>
+                  <td className="px-4 py-2">{s.faculty?.name || "N/A"}</td>
+                  <td className="px-4 py-2">
+                    {s.classroom
+                      ? `${s.classroom.building} (${s.classroom.classroomId})`
+                      : "N/A"}
+                  </td>
                 </tr>
               ))}
             </tbody>
