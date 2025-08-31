@@ -1,4 +1,3 @@
-// src/models/Faculty.ts
 import { Schema, Document, models, model } from "mongoose";
 
 export type Designation =
@@ -10,11 +9,10 @@ export type Designation =
 export interface IFaculty extends Document {
   facultyId: string;
   name: string;
-  email?: string;
   department: string;
   designation: Designation;
-  coursePreferences: string[]; // names or codes of courses
-  timePreferences?: string[];  // optional free-form strings
+  coursePreferences: string[];
+  timePreferences?: string[];
   assignedCourses: string[];
   submittedAt: Date;
   createdAt: Date;
@@ -25,7 +23,6 @@ const FacultySchema = new Schema<IFaculty>(
   {
     facultyId: { type: String, required: true, unique: true, trim: true },
     name: { type: String, required: true, trim: true },
-    email: { type: String, required: false, trim: true },
     department: { type: String, required: true, trim: true },
     designation: {
       type: String,
